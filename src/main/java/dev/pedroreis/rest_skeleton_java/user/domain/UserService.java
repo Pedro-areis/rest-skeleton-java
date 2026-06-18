@@ -33,8 +33,14 @@ public class UserService implements CreateUserUseCase, FindUserUseCase, UpdateUs
     }
 
     @Override
-    public User update(User user) {
-        return userRepositoryPort.save(user);
+    public User update(UUID id, String name, String email, String password) {
+        User existingUser = userRepositoryPort.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        existingUser.updateProfile(name, email);
+        existingUser.updatePassword(password);
+
+        return userRepositoryPort.save(existingUser);
     }
 
     @Override

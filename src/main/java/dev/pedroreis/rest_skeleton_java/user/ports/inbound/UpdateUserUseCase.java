@@ -5,5 +5,5 @@ import dev.pedroreis.rest_skeleton_java.user.domain.User;
 import java.util.UUID;
 
 public interface UpdateUserUseCase {
-    User update(User user);
+    User update(UUID id, String name, String email, String password);
 }

@@ -34,6 +34,22 @@ public class User {
         this.createdAt = LocalDateTime.now();
     }
 
+    public void updateProfile (String newName, String newEmail) {
+        if (newName != null && !newName.trim().isEmpty()) {
+            this.name = newName;
+        }
+        if (newEmail != null && !newEmail.trim().isEmpty()) {
+            validateEmail(newEmail);
+            this.email = newEmail;
+        }
+    }
+
+    public void updatePassword (String newPassword) {
+        if (newPassword != null && !newPassword.trim().isEmpty()) {
+            this.password = newPassword;
+        }
+    }
+
     public UUID getId () { return id; }
     public String getName () { return name; }
     public String getEmail () { return email; }
