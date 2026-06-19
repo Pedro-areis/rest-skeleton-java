@@ -2,10 +2,12 @@ package dev.pedroreis.rest_skeleton_java.user.adapters.outbound;
 
 import dev.pedroreis.rest_skeleton_java.user.domain.User;
 import dev.pedroreis.rest_skeleton_java.user.ports.outbound.UserRepositoryPort;
+import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 import java.util.UUID;
 
+@Component
 public class PostgresUserAdapter implements UserRepositoryPort {
     private final SpringDataUserRepository jpaRepository;
 
