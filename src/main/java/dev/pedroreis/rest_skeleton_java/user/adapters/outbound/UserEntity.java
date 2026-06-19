@@ -29,6 +29,7 @@ public class UserEntity {
     @Column(unique = true)
     private String email;
 
+    @Column(name = "password_hash", nullable = false)
     private String password;
 
     @Column(name = "created_at")
