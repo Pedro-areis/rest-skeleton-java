@@ -45,10 +45,8 @@ public class UserService implements CreateUserUseCase, FindUserUseCase, UpdateUs
 
     @Override
     public void deleteById(UUID id) {
-        Optional<User> user = userRepositoryPort.findById(id);
-        if (user.isEmpty()) {
-            throw new IllegalArgumentException("User not found");
-        }
+        User user = userRepositoryPort.findById(id)
+                        .orElseThrow(() -> new IllegalArgumentException("User not found"));
         userRepositoryPort.deleteById(id);
     }
 }
