@@ -54,4 +54,12 @@ public class UserController {
                 .body(UserResponse.fromDomain(updated));
     }
 
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<Void> deleteUser (
+            @PathVariable UUID userId
+    ) {
+        deleteUserUseCase.deleteById(userId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
 }
