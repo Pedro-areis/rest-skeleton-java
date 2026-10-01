@@ -1,5 +1,7 @@
 package dev.pedroreis.rest_skeleton_java.user.domain;
 
+import dev.pedroreis.rest_skeleton_java.user.domain.exception.EmailAlreadyExistsException;
+import dev.pedroreis.rest_skeleton_java.user.domain.exception.UserNotFoundException;
 import dev.pedroreis.rest_skeleton_java.user.ports.inbound.CreateUserUseCase;
 import dev.pedroreis.rest_skeleton_java.user.ports.inbound.DeleteUserUseCase;
 import dev.pedroreis.rest_skeleton_java.user.ports.inbound.FindUserUseCase;
@@ -20,7 +22,7 @@ public class UserService implements CreateUserUseCase, FindUserUseCase, UpdateUs
     public User execute(String name, String email, String password) {
         Optional<User> existingUser = userRepositoryPort.findByEmail(email);
         if (existingUser.isPresent()) {
-            throw new IllegalArgumentException("E-mail already exists");
+            throw new EmailAlreadyExistsException();
         }
 
         User user = new User(name, email, password);
@@ -34,8 +36,9 @@ public class UserService implements CreateUserUseCase, FindUserUseCase, UpdateUs
 
     @Override
     public User update(UUID id, String name, String email, String password) {
+        // OBS: busca por e-mail em vez de id. Bug conhecido, corrigido na Task 3.
         User existingUser = userRepositoryPort.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(UserNotFoundException::new);
 
         existingUser.updateProfile(name, email);
         existingUser.updatePassword(password);
@@ -46,7 +49,7 @@ public class UserService implements CreateUserUseCase, FindUserUseCase, UpdateUs
     @Override
     public void deleteById(UUID id) {
         User user = userRepositoryPort.findById(id)
-                        .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                        .orElseThrow(UserNotFoundException::new);
         userRepositoryPort.deleteById(id);
     }
 }

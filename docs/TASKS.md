@@ -6,30 +6,30 @@ Marque `[x]` ao concluir. Uma tarefa por vez, com testes.
 **Como retomar uma conversa com a IA:** cole `PROJECT.md`, `REQUIREMENTS.md`, este arquivo e os ADRs relevantes, e diga qual tarefa vai fazer.
 
 ## Antes de começar
-- [ ] Apagar os dados de teste do banco (necessário para a migração `V2` com `NOT NULL`, tarefa 2)
+- [X] Apagar os dados de teste do banco (necessário para a migração `V2` com `NOT NULL`, tarefa 2)
 
 ## Fase 1 — Base
 
-- [ ] **1. Exceções de domínio e tratador global de erros**
+- [X] **1. Exceções de domínio e tratador global de erros**
   - Exceções específicas (e-mail já cadastrado, usuário não encontrado etc.)
   - `@ControllerAdvice` mapeando para 400, 404, 409
   - `PostgresUserAdapter` converte `DataIntegrityViolationException` em exceção de domínio
   - Mensagens em português
   - ADR: 012 | Depende de: nada
 
-- [ ] **2. Data de nascimento**
+- [X] **2. Data de nascimento**
   - Migração `V2` (coluna `NOT NULL`), `User`, `UserEntity`, DTOs
   - Regra: não pode ser futura
   - ADR: 011 | Requisitos: RF01, RF05 | Depende de: 1
 
-- [ ] **3. Corrigir o `update`**
+- [X] **3. Corrigir o `update`**
   - Buscar o usuário por `id` (hoje busca por e-mail)
   - Novo e-mail não pode pertencer a outro usuário
   - Validações no `UpdateUserRequest`
   - Remover a variável não usada em `deleteById`
   - Requisitos: RF05 | Depende de: 1, 2
 
-- [ ] **4. Testes unitários do domínio**
+- [X] **4. Testes unitários do domínio**
   - `User` e `UserService`, com repositório falso (sem Spring e sem banco)
   - Requisitos: RNF03 | Depende de: 3
 

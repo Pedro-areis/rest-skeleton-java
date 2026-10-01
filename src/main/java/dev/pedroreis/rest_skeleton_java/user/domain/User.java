@@ -1,5 +1,7 @@
 package dev.pedroreis.rest_skeleton_java.user.domain;
 
+import dev.pedroreis.rest_skeleton_java.user.domain.exception.InvalidEmailException;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -20,7 +22,7 @@ public class User {
 
     private void validateEmail(String email) {
         if (email == null || !email.contains("@")) {
-            throw new IllegalArgumentException("Invalid email");
+            throw new InvalidEmailException();
         }
     }
 
