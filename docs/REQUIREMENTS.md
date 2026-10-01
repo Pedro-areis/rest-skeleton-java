@@ -24,28 +24,27 @@ O sistema deve permitir que o usuário faça o login com as seguintes informaç�
 
 ## RF03 — Consultar usuários pelo e-mail
 
-O sistema deve permitir que um administrador consulte os usuários daquele sistema pelo e-mail.
+O sistema deve permitir que o usuário consulte seus dados.
 
 ---
 
-## RF04 — Listar Usuários
+## RF04 — Atualizar Usuário
 
-O sistema deve permitir listar os usuários cadastrados. Apenas o administrador terá acesso a esse endpoint.
+O sistema deve permitir que um usuário autenticado altere seus próprios
+dados cadastrais.
+
+O sistema deve impedir que um usuário altere os dados cadastrais de
+outro usuário.
+
+Os campos que podem ser alterados são:
+- nome;
+- e-mail, desde que não esteja sendo utilizado por outro usuário;
+- senha;
+- data de nascimento.
 
 ---
 
-## RF05 — Atualizar Usuário
-
-O sistema deve permitir alterar:
-
-- nome
-- e-mail, desde que não esteja sendo utilizado por outro usuário
-- senha
-- data de nascimento
-
----
-
-## RF06 — Excluir um Usuário
+## RF05 — Excluir um Usuário
 
 O sistema deve permitir que o usuário exclua seu cadastro no sistema. O administrador também pode excluir os dados do usuário.
 

@@ -16,7 +16,6 @@ Desenvolvedores demoram para iniciar o projeto de fato (a solução) criando o C
 ## Funcionalidades principais
 
 - Criar um usuário
-- Ler os usuários existentes (apenas ADM)
 - Atualizar um usuário
 - Excluir um usuário
 - Autenticar usuários através de Tokens
@@ -26,7 +25,7 @@ Desenvolvedores demoram para iniciar o projeto de fato (a solução) criando o C
 - Recuperação de senha por e-mail
 - Confirmação de e-mail
 - Login com Google, GitHub ou outros provedores
-- Gerenciamento de permissões além do necessário para diferenciar usuário e administrador
+- Gerenciamento de permissões e roles
 - Integração com outros sistemas
 - Interface gráfica / frontend
 - Funcionalidades específicas de negócio
