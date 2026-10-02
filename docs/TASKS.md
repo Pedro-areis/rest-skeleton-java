@@ -15,12 +15,10 @@ Marque `[x]` ao concluir. Uma tarefa por vez, com testes.
   - `@ControllerAdvice` mapeando para 400, 404, 409
   - `PostgresUserAdapter` converte `DataIntegrityViolationException` em exceção de domínio
   - Mensagens em português
-  - ADR: 012 | Depende de: nada
 
 - [X] **2. Data de nascimento**
   - Migração `V2` (coluna `NOT NULL`), `User`, `UserEntity`, DTOs
   - Regra: não pode ser futura
-  - ADR: 011 | Requisitos: RF01, RF05 | Depende de: 1
 
 - [X] **3. Corrigir o `update`**
   - Buscar o usuário por `id` (hoje busca por e-mail)
@@ -43,17 +41,15 @@ Marque `[x]` ao concluir. Uma tarefa por vez, com testes.
   - HS256, access token de 1 hora, refresh token de 7 dias (só assinado)
   - Chave secreta no código por ora (ADR 015)
   - Casos de uso: login e renovação do token
-  - ADR: 007, 008, 010, 015 | Requisitos: RF02 | Depende de: 5
+  - ADR: 002 | Requisitos: RF02 | Depende de: 2
 
 - [ ] **7. Spring Security**
   - `SecurityFilterChain`, filtro que lê o token
   - Rotas públicas: cadastro, login, renovação
-  - ADR: 010 | Depende de: 6
 
 - [ ] **8. Endpoints `/me`**
   - `GET /me`, `PATCH /me`, `DELETE /me` com `@AuthenticationPrincipal`
   - Remover as rotas com `{userId}`
-  - ADR: 005, 006 | Requisitos: RF05, RF06 | Depende de: 7
 
 ## Fase 3 — Fechamento
 

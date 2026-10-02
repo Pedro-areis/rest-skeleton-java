@@ -1,4 +1,4 @@
-# 007 — JWT com assinatura HS256 e access token de 1 hora
+# 002 — JWT com assinatura HS256 e access token de 1 hora
 
 **Data:** 30/09/2026
 **Status:** Decidido
