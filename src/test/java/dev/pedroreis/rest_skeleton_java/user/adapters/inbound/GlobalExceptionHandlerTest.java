@@ -1,6 +1,7 @@
 package dev.pedroreis.rest_skeleton_java.user.adapters.inbound;
 
 import dev.pedroreis.rest_skeleton_java.user.domain.exception.EmailAlreadyExistsException;
+import dev.pedroreis.rest_skeleton_java.user.domain.exception.InvalidBirthDateException;
 import dev.pedroreis.rest_skeleton_java.user.domain.exception.InvalidEmailException;
 import dev.pedroreis.rest_skeleton_java.user.domain.exception.UserNotFoundException;
 import dev.pedroreis.rest_skeleton_java.user.ports.inbound.CreateUserUseCase;
@@ -55,11 +56,11 @@ class GlobalExceptionHandlerTest {
     }
 
     private static final String VALID_BODY =
-            "{\"name\":\"Pedro\",\"email\":\"pedro@email.com\",\"password\":\"123\"}";
+            "{\"name\":\"Pedro\",\"email\":\"pedro@email.com\",\"password\":\"123\",\"birthDate\":\"2000-01-15\"}";
 
     @Test
     void shouldReturn409WhenEmailAlreadyExists() throws Exception {
-        when(createUserUseCase.execute(any(), any(), any())).thenThrow(new EmailAlreadyExistsException());
+        when(createUserUseCase.execute(any(), any(), any(), any())).thenThrow(new EmailAlreadyExistsException());
 
         mockMvc.perform(post("/api/v1/users/register")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -71,7 +72,7 @@ class GlobalExceptionHandlerTest {
 
     @Test
     void shouldReturn400WhenDomainRejectsEmail() throws Exception {
-        when(createUserUseCase.execute(any(), any(), any())).thenThrow(new InvalidEmailException());
+        when(createUserUseCase.execute(any(), any(), any(), any())).thenThrow(new InvalidEmailException());
 
         mockMvc.perform(post("/api/v1/users/register")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -81,14 +82,44 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
+    void shouldReturn400WhenDomainRejectsBirthDate() throws Exception {
+        when(createUserUseCase.execute(any(), any(), any(), any())).thenThrow(new InvalidBirthDateException());
+
+        mockMvc.perform(post("/api/v1/users/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(VALID_BODY))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Data de nascimento inválida"));
+    }
+
+    @Test
     void shouldReturn400WithFieldErrorsWhenBodyIsInvalid() throws Exception {
         mockMvc.perform(post("/api/v1/users/register")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"name\":\"\",\"email\":\"nao-e-email\",\"password\":\"123\"}"))
+                        .content("{\"name\":\"\",\"email\":\"nao-e-email\",\"password\":\"123\",\"birthDate\":\"2000-01-15\"}"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Dados inválidos"))
                 .andExpect(jsonPath("$.fieldErrors.name").value("Nome é obrigatório"))
                 .andExpect(jsonPath("$.fieldErrors.email").value("Formato de e-mail inválido"));
+    }
+
+    @Test
+    void shouldReturn400WithFieldErrorWhenBirthDateIsMissing() throws Exception {
+        mockMvc.perform(post("/api/v1/users/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"Pedro\",\"email\":\"pedro@email.com\",\"password\":\"123\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Dados inválidos"))
+                .andExpect(jsonPath("$.fieldErrors.birthDate").value("Data de nascimento é obrigatória"));
+    }
+
+    @Test
+    void shouldReturn400WhenBirthDateHasInvalidFormat() throws Exception {
+        mockMvc.perform(post("/api/v1/users/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"Pedro\",\"email\":\"pedro@email.com\",\"password\":\"123\",\"birthDate\":\"31/12/2000\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Corpo da requisição inválido ou malformado"));
     }
 
     @Test
@@ -102,7 +133,7 @@ class GlobalExceptionHandlerTest {
 
     @Test
     void shouldReturn404WhenUpdatingUnknownUser() throws Exception {
-        when(updateUserUseCase.update(any(), any(), any(), any())).thenThrow(new UserNotFoundException());
+        when(updateUserUseCase.update(any(), any(), any(), any(), any())).thenThrow(new UserNotFoundException());
 
         mockMvc.perform(patch("/api/v1/users/{id}", UUID.randomUUID())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -122,7 +153,7 @@ class GlobalExceptionHandlerTest {
 
     @Test
     void shouldReturn500WithGenericMessageAndNotLeakDetails() throws Exception {
-        when(createUserUseCase.execute(any(), any(), any()))
+        when(createUserUseCase.execute(any(), any(), any(), any()))
                 .thenThrow(new RuntimeException("senha do banco = segredo"));
 
         mockMvc.perform(post("/api/v1/users/register")

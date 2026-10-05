@@ -10,6 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -25,7 +26,7 @@ class PostgresUserAdapterTest {
     @InjectMocks
     private PostgresUserAdapter adapter;
 
-    private final User user = new User("Pedro", "pedro@email.com", "123");
+    private final User user = new User("Pedro", "pedro@email.com", "123", LocalDate.of(2000, 1, 15));
 
     @Test
     void shouldThrowEmailAlreadyExistsOnUniqueViolation() {
