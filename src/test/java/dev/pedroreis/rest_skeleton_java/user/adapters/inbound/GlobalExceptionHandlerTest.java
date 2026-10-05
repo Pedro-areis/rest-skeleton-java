@@ -143,6 +143,27 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
+    void shouldReturn400WithFieldErrorWhenUpdatingWithInvalidEmailFormat() throws Exception {
+        mockMvc.perform(patch("/api/v1/users/{id}", UUID.randomUUID())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"nao-e-email\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Dados inválidos"))
+                .andExpect(jsonPath("$.fieldErrors.email").value("Formato de e-mail inválido"));
+    }
+
+    @Test
+    void shouldReturn409WhenUpdatingToEmailOfAnotherUser() throws Exception {
+        when(updateUserUseCase.update(any(), any(), any(), any(), any())).thenThrow(new EmailAlreadyExistsException());
+
+        mockMvc.perform(patch("/api/v1/users/{id}", UUID.randomUUID())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"outro@email.com\"}"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").value("E-mail já cadastrado"));
+    }
+
+    @Test
     void shouldReturn404WhenDeletingUnknownUser() throws Exception {
         doThrow(new UserNotFoundException()).when(deleteUserUseCase).deleteById(any());
 
