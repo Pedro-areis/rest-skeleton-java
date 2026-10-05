@@ -20,14 +20,14 @@ Marque `[x]` ao concluir. Uma tarefa por vez, com testes.
   - Migração `V2` (coluna `NOT NULL`), `User`, `UserEntity`, DTOs
   - Regra: não pode ser futura
 
-- [X] **3. Corrigir o `update`**
+- [ ] **3. Corrigir o `update`**
   - Buscar o usuário por `id` (hoje busca por e-mail)
   - Novo e-mail não pode pertencer a outro usuário
   - Validações no `UpdateUserRequest`
   - Remover a variável não usada em `deleteById`
   - Requisitos: RF05 | Depende de: 1, 2
 
-- [X] **4. Testes unitários do domínio**
+- [ ] **4. Testes unitários do domínio**
   - `User` e `UserService`, com repositório falso (sem Spring e sem banco)
   - Requisitos: RNF03 | Depende de: 3
 
