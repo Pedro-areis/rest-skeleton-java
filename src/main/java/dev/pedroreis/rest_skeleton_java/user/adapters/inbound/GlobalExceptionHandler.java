@@ -2,6 +2,7 @@ package dev.pedroreis.rest_skeleton_java.user.adapters.inbound;
 
 import dev.pedroreis.rest_skeleton_java.user.adapters.inbound.dto.ErrorResponse;
 import dev.pedroreis.rest_skeleton_java.user.domain.exception.EmailAlreadyExistsException;
+import dev.pedroreis.rest_skeleton_java.user.domain.exception.InvalidBirthDateException;
 import dev.pedroreis.rest_skeleton_java.user.domain.exception.InvalidEmailException;
 import dev.pedroreis.rest_skeleton_java.user.domain.exception.UserNotFoundException;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +33,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(InvalidEmailException.class)
     public ResponseEntity<ErrorResponse> handleInvalidEmail(InvalidEmailException ex) {
+        return build(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidBirthDateException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidBirthDate(InvalidBirthDateException ex) {
         return build(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
