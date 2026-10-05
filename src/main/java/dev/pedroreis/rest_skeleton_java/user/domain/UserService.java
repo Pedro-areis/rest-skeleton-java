@@ -8,6 +8,7 @@ import dev.pedroreis.rest_skeleton_java.user.ports.inbound.FindUserUseCase;
 import dev.pedroreis.rest_skeleton_java.user.ports.inbound.UpdateUserUseCase;
 import dev.pedroreis.rest_skeleton_java.user.ports.outbound.UserRepositoryPort;
 
+import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -19,13 +20,13 @@ public class UserService implements CreateUserUseCase, FindUserUseCase, UpdateUs
     }
 
     @Override
-    public User execute(String name, String email, String password) {
+    public User execute(String name, String email, String password, LocalDate birthDate) {
         Optional<User> existingUser = userRepositoryPort.findByEmail(email);
         if (existingUser.isPresent()) {
             throw new EmailAlreadyExistsException();
         }
 
-        User user = new User(name, email, password);
+        User user = new User(name, email, password, birthDate);
         return userRepositoryPort.save(user);
     }
 
@@ -35,12 +36,12 @@ public class UserService implements CreateUserUseCase, FindUserUseCase, UpdateUs
     }
 
     @Override
-    public User update(UUID id, String name, String email, String password) {
+    public User update(UUID id, String name, String email, String password, LocalDate birthDate) {
         // OBS: busca por e-mail em vez de id. Bug conhecido, corrigido na Task 3.
         User existingUser = userRepositoryPort.findByEmail(email)
                 .orElseThrow(UserNotFoundException::new);
 
-        existingUser.updateProfile(name, email);
+        existingUser.updateProfile(name, email, birthDate);
         existingUser.updatePassword(password);
 
         return userRepositoryPort.save(existingUser);
