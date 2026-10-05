@@ -20,8 +20,8 @@ import java.util.UUID;
 @Getter
 @Setter
 public class UserEntity {
+    // Sem @GeneratedValue: o id é gerado pelo domínio (UUID.randomUUID() em new User(...)).
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     private String name;

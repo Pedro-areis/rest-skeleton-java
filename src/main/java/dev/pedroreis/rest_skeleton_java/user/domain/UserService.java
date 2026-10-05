@@ -37,20 +37,35 @@ public class UserService implements CreateUserUseCase, FindUserUseCase, UpdateUs
 
     @Override
     public User update(UUID id, String name, String email, String password, LocalDate birthDate) {
-        // OBS: busca por e-mail em vez de id. Bug conhecido, corrigido na Task 3.
-        User existingUser = userRepositoryPort.findByEmail(email)
+        User user = userRepositoryPort.findById(id)
                 .orElseThrow(UserNotFoundException::new);
 
-        existingUser.updateProfile(name, email, birthDate);
-        existingUser.updatePassword(password);
+        // Primeiro aplica as mudanças (o domínio valida e-mail e data), depois confere a unicidade.
+        user.updateProfile(name, email, birthDate);
+        user.updatePassword(password);
+        ensureEmailIsNotUsedByAnotherUser(user);
 
-        return userRepositoryPort.save(existingUser);
+        return userRepositoryPort.save(user);
     }
 
     @Override
     public void deleteById(UUID id) {
-        User user = userRepositoryPort.findById(id)
-                        .orElseThrow(UserNotFoundException::new);
+        // A consulta existe só para devolver "não encontrado" quando o id não existe.
+        userRepositoryPort.findById(id)
+                .orElseThrow(UserNotFoundException::new);
         userRepositoryPort.deleteById(id);
+    }
+
+    /**
+     * O e-mail pode continuar sendo o do próprio usuário (ele não mudou),
+     * mas não pode ser o de outra pessoa. A constraint UNIQUE do banco continua
+     * como segunda barreira para o caso de duas requisições simultâneas.
+     */
+    private void ensureEmailIsNotUsedByAnotherUser(User user) {
+        userRepositoryPort.findByEmail(user.getEmail())
+                .filter(other -> !other.getId().equals(user.getId()))
+                .ifPresent(other -> {
+                    throw new EmailAlreadyExistsException();
+                });
     }
 }
