@@ -32,7 +32,8 @@ public class UserController {
         User createUser = createUserUseCase.execute(
                 request.name(),
                 request.email(),
-                request.password()
+                request.password(),
+                request.birthDate()
         );
 
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -48,7 +49,8 @@ public class UserController {
                 userId,
                 request.name(),
                 request.email(),
-                request.password()
+                request.password(),
+                request.birthDate()
         );
         return ResponseEntity.status(HttpStatus.OK)
                 .body(UserResponse.fromDomain(updated));

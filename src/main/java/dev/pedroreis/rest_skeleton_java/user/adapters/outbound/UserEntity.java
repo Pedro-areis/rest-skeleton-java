@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CurrentTimestamp;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -32,15 +33,21 @@ public class UserEntity {
     @Column(name = "password_hash", nullable = false)
     private String password;
 
+    // ATENÇÃO: o @AllArgsConstructor monta o construtor na ORDEM dos campos.
+    // Se mudar a ordem aqui, ajustar o fromDomain.
+    @Column(name = "birth_date", nullable = false)
+    private LocalDate birthDate;
+
     @Column(name = "created_at")
     @CurrentTimestamp
     private LocalDateTime createdAt;
 
     public User toDomain () {
-        return new User(id, name, email, password, createdAt);
+        return new User(id, name, email, password, birthDate, createdAt);
     }
 
     public static UserEntity fromDomain (User user) {
-        return new UserEntity(user.getId(), user.getName(), user.getEmail(), user.getPassword(), user.getCreatedAt());
+        return new UserEntity(user.getId(), user.getName(), user.getEmail(), user.getPassword(),
+                user.getBirthDate(), user.getCreatedAt());
     }
 }

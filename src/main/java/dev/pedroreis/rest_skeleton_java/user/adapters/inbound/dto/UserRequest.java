@@ -2,6 +2,9 @@ package dev.pedroreis.rest_skeleton_java.user.adapters.inbound.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
+import java.time.LocalDate;
 
 public record UserRequest(
         @NotBlank(message = "Nome é obrigatório")
@@ -12,5 +15,9 @@ public record UserRequest(
         String email,
 
         @NotBlank(message = "Senha é obrigatória")
-        String password
+        String password,
+
+        // Só exige presença. A regra "não pode ser futura" mora no domínio (User).
+        @NotNull(message = "Data de nascimento é obrigatória")
+        LocalDate birthDate
 ) {}

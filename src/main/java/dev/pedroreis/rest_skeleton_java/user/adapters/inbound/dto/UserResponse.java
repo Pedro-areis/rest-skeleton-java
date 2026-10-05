@@ -2,6 +2,7 @@ package dev.pedroreis.rest_skeleton_java.user.adapters.inbound.dto;
 
 import dev.pedroreis.rest_skeleton_java.user.domain.User;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -9,6 +10,7 @@ public record UserResponse(
         UUID id,
         String name,
         String email,
+        LocalDate birthDate,
         LocalDateTime createdAt
 ) {
     public static UserResponse fromDomain (User user) {
@@ -16,6 +18,7 @@ public record UserResponse(
                 user.getId(),
                 user.getName(),
                 user.getEmail(),
+                user.getBirthDate(),
                 user.getCreatedAt()
         );
     }
