@@ -16,11 +16,11 @@ Marque `[x]` ao concluir. Uma tarefa por vez, com testes.
   - `PostgresUserAdapter` converte `DataIntegrityViolationException` em exceção de domínio
   - Mensagens em português
 
-- [X] **2. Data de nascimento**
+- [x] **2. Data de nascimento**
   - Migração `V2` (coluna `NOT NULL`), `User`, `UserEntity`, DTOs
   - Regra: não pode ser futura
 
-- [ ] **3. Corrigir o `update`**
+- [x] **3. Corrigir o `update`**
   - Buscar o usuário por `id` (hoje busca por e-mail)
   - Novo e-mail não pode pertencer a outro usuário
   - Validações no `UpdateUserRequest`

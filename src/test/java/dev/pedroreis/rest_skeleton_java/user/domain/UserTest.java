@@ -5,9 +5,12 @@ import dev.pedroreis.rest_skeleton_java.user.domain.exception.InvalidEmailExcept
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class UserTest {
@@ -16,6 +19,35 @@ class UserTest {
 
     private User newUser() {
         return new User("Pedro", "pedro@email.com", "123", VALID_BIRTH_DATE);
+    }
+
+    // ---------- criação ----------
+
+    @Test
+    void shouldGenerateIdAndCreatedAtWhenCreatingNewUser() {
+        User user = newUser();
+
+        assertNotNull(user.getId());
+        assertNotNull(user.getCreatedAt());
+    }
+
+    @Test
+    void shouldKeepGivenDataWhenCreatingNewUser() {
+        User user = newUser();
+
+        assertEquals("Pedro", user.getName());
+        assertEquals("pedro@email.com", user.getEmail());
+        assertEquals("123", user.getPassword());
+        assertEquals(VALID_BIRTH_DATE, user.getBirthDate());
+    }
+
+    @Test
+    void shouldNotValidateWhenRebuildingUserFromPersistence() {
+        // O construtor de reconstituição não aplica regras: o dado já foi validado na criação.
+        LocalDate futureDate = LocalDate.now().plusYears(1);
+
+        assertDoesNotThrow(() -> new User(
+                UUID.randomUUID(), "Pedro", "sem-arroba", "123", futureDate, LocalDateTime.now()));
     }
 
     // ---------- e-mail ----------
@@ -44,6 +76,82 @@ class UserTest {
         User user = newUser();
 
         assertThrows(InvalidEmailException.class, () -> user.updateProfile(null, "invalido", null));
+    }
+
+    @Test
+    void shouldUpdateEmailWhenValid() {
+        User user = newUser();
+
+        user.updateProfile(null, "novo@email.com", null);
+
+        assertEquals("novo@email.com", user.getEmail());
+    }
+
+    @Test
+    void shouldKeepEmailWhenUpdatingWithBlank() {
+        User user = newUser();
+
+        user.updateProfile(null, "   ", null);
+
+        assertEquals("pedro@email.com", user.getEmail());
+    }
+
+    // ---------- nome ----------
+
+    @Test
+    void shouldUpdateNameWhenFilled() {
+        User user = newUser();
+
+        user.updateProfile("Pedro Reis", null, null);
+
+        assertEquals("Pedro Reis", user.getName());
+    }
+
+    @Test
+    void shouldKeepNameWhenUpdatingWithNull() {
+        User user = newUser();
+
+        user.updateProfile(null, null, null);
+
+        assertEquals("Pedro", user.getName());
+    }
+
+    @Test
+    void shouldKeepNameWhenUpdatingWithBlank() {
+        User user = newUser();
+
+        user.updateProfile("   ", null, null);
+
+        assertEquals("Pedro", user.getName());
+    }
+
+    // ---------- senha ----------
+
+    @Test
+    void shouldUpdatePasswordWhenFilled() {
+        User user = newUser();
+
+        user.updatePassword("nova-senha");
+
+        assertEquals("nova-senha", user.getPassword());
+    }
+
+    @Test
+    void shouldKeepPasswordWhenUpdatingWithNull() {
+        User user = newUser();
+
+        user.updatePassword(null);
+
+        assertEquals("123", user.getPassword());
+    }
+
+    @Test
+    void shouldKeepPasswordWhenUpdatingWithBlank() {
+        User user = newUser();
+
+        user.updatePassword("   ");
+
+        assertEquals("123", user.getPassword());
     }
 
     // ---------- data de nascimento ----------
