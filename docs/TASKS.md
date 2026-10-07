@@ -27,7 +27,7 @@ Marque `[x]` ao concluir. Uma tarefa por vez, com testes.
   - Remover a variável não usada em `deleteById`
   - Requisitos: RF05 | Depende de: 1, 2
 
-- [ ] **4. Testes unitários do domínio**
+- [x] **4. Testes unitários do domínio**
   - `User` e `UserService`, com repositório falso (sem Spring e sem banco)
   - Requisitos: RNF03 | Depende de: 3
 

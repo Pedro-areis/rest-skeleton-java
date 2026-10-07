@@ -4,6 +4,7 @@ import dev.pedroreis.rest_skeleton_java.user.adapters.inbound.dto.ErrorResponse;
 import dev.pedroreis.rest_skeleton_java.user.domain.exception.EmailAlreadyExistsException;
 import dev.pedroreis.rest_skeleton_java.user.domain.exception.InvalidBirthDateException;
 import dev.pedroreis.rest_skeleton_java.user.domain.exception.InvalidEmailException;
+import dev.pedroreis.rest_skeleton_java.user.domain.exception.InvalidPasswordException;
 import dev.pedroreis.rest_skeleton_java.user.domain.exception.UserNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -38,6 +39,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(InvalidBirthDateException.class)
     public ResponseEntity<ErrorResponse> handleInvalidBirthDate(InvalidBirthDateException ex) {
+        return build(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidPasswordException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidPassword(InvalidPasswordException ex) {
         return build(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 

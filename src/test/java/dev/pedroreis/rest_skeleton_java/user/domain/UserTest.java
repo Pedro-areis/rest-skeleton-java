@@ -16,9 +16,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class UserTest {
 
     private static final LocalDate VALID_BIRTH_DATE = LocalDate.of(2000, 1, 15);
+    // O User só guarda o hash; quem gera o hash é o UserService (testado em UserServiceTest).
+    private static final String PASSWORD_HASH = "hash-da-senha";
 
     private User newUser() {
-        return new User("Pedro", "pedro@email.com", "123", VALID_BIRTH_DATE);
+        return new User("Pedro", "pedro@email.com", PASSWORD_HASH, VALID_BIRTH_DATE);
     }
 
     // ---------- criação ----------
@@ -37,7 +39,7 @@ class UserTest {
 
         assertEquals("Pedro", user.getName());
         assertEquals("pedro@email.com", user.getEmail());
-        assertEquals("123", user.getPassword());
+        assertEquals(PASSWORD_HASH, user.getPasswordHash());
         assertEquals(VALID_BIRTH_DATE, user.getBirthDate());
     }
 
@@ -47,7 +49,7 @@ class UserTest {
         LocalDate futureDate = LocalDate.now().plusYears(1);
 
         assertDoesNotThrow(() -> new User(
-                UUID.randomUUID(), "Pedro", "sem-arroba", "123", futureDate, LocalDateTime.now()));
+                UUID.randomUUID(), "Pedro", "sem-arroba", PASSWORD_HASH, futureDate, LocalDateTime.now()));
     }
 
     // ---------- e-mail ----------
@@ -55,7 +57,7 @@ class UserTest {
     @Test
     void shouldThrowInvalidEmailWhenEmailHasNoAtSign() {
         InvalidEmailException ex = assertThrows(InvalidEmailException.class,
-                () -> new User("Pedro", "email-sem-arroba", "123", VALID_BIRTH_DATE));
+                () -> new User("Pedro", "email-sem-arroba", PASSWORD_HASH, VALID_BIRTH_DATE));
 
         assertEquals("E-mail inválido", ex.getMessage());
     }
@@ -63,7 +65,7 @@ class UserTest {
     @Test
     void shouldThrowInvalidEmailWhenEmailIsNull() {
         assertThrows(InvalidEmailException.class,
-                () -> new User("Pedro", null, "123", VALID_BIRTH_DATE));
+                () -> new User("Pedro", null, PASSWORD_HASH, VALID_BIRTH_DATE));
     }
 
     @Test
@@ -125,33 +127,33 @@ class UserTest {
         assertEquals("Pedro", user.getName());
     }
 
-    // ---------- senha ----------
+    // ---------- hash da senha ----------
 
     @Test
-    void shouldUpdatePasswordWhenFilled() {
+    void shouldUpdatePasswordHashWhenFilled() {
         User user = newUser();
 
-        user.updatePassword("nova-senha");
+        user.updatePasswordHash("novo-hash");
 
-        assertEquals("nova-senha", user.getPassword());
+        assertEquals("novo-hash", user.getPasswordHash());
     }
 
     @Test
-    void shouldKeepPasswordWhenUpdatingWithNull() {
+    void shouldKeepPasswordHashWhenUpdatingWithNull() {
         User user = newUser();
 
-        user.updatePassword(null);
+        user.updatePasswordHash(null);
 
-        assertEquals("123", user.getPassword());
+        assertEquals(PASSWORD_HASH, user.getPasswordHash());
     }
 
     @Test
-    void shouldKeepPasswordWhenUpdatingWithBlank() {
+    void shouldKeepPasswordHashWhenUpdatingWithBlank() {
         User user = newUser();
 
-        user.updatePassword("   ");
+        user.updatePasswordHash("   ");
 
-        assertEquals("123", user.getPassword());
+        assertEquals(PASSWORD_HASH, user.getPasswordHash());
     }
 
     // ---------- data de nascimento ----------
@@ -161,7 +163,7 @@ class UserTest {
         LocalDate tomorrow = LocalDate.now().plusDays(1);
 
         InvalidBirthDateException ex = assertThrows(InvalidBirthDateException.class,
-                () -> new User("Pedro", "pedro@email.com", "123", tomorrow));
+                () -> new User("Pedro", "pedro@email.com", PASSWORD_HASH, tomorrow));
 
         assertEquals("Data de nascimento inválida", ex.getMessage());
     }
@@ -169,12 +171,12 @@ class UserTest {
     @Test
     void shouldThrowInvalidBirthDateWhenDateIsNull() {
         assertThrows(InvalidBirthDateException.class,
-                () -> new User("Pedro", "pedro@email.com", "123", null));
+                () -> new User("Pedro", "pedro@email.com", PASSWORD_HASH, null));
     }
 
     @Test
     void shouldAcceptBirthDateOfToday() {
-        assertDoesNotThrow(() -> new User("Pedro", "pedro@email.com", "123", LocalDate.now()));
+        assertDoesNotThrow(() -> new User("Pedro", "pedro@email.com", PASSWORD_HASH, LocalDate.now()));
     }
 
     @Test

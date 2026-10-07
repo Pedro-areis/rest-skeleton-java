@@ -31,7 +31,7 @@ public class UserEntity {
     private String email;
 
     @Column(name = "password_hash", nullable = false)
-    private String password;
+    private String passwordHash;
 
     // ATENÇÃO: o @AllArgsConstructor monta o construtor na ORDEM dos campos.
     // Se mudar a ordem aqui, ajustar o fromDomain.
@@ -43,11 +43,11 @@ public class UserEntity {
     private LocalDateTime createdAt;
 
     public User toDomain () {
-        return new User(id, name, email, password, birthDate, createdAt);
+        return new User(id, name, email, passwordHash, birthDate, createdAt);
     }
 
     public static UserEntity fromDomain (User user) {
-        return new UserEntity(user.getId(), user.getName(), user.getEmail(), user.getPassword(),
+        return new UserEntity(user.getId(), user.getName(), user.getEmail(), user.getPasswordHash(),
                 user.getBirthDate(), user.getCreatedAt());
     }
 }

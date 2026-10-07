@@ -13,41 +13,55 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Testa as regras do caso de uso com um repositório falso: sem Spring, sem banco, sem Mockito.
+ * Testa as regras do caso de uso com repositório e hasher falsos: sem Spring, sem banco, sem Mockito.
  */
 class UserServiceTest {
 
     private static final LocalDate BIRTH_DATE = LocalDate.of(2000, 1, 15);
+    private static final String RAW_PASSWORD = "123";
+    private static final String HASHED_PASSWORD = FakePasswordHasher.PREFIX + RAW_PASSWORD;
 
     private FakeUserRepository repository;
+    private FakePasswordHasher hasher;
     private UserService service;
 
     @BeforeEach
     void setUp() {
         repository = new FakeUserRepository();
-        service = new UserService(repository);
+        hasher = new FakePasswordHasher();
+        service = new UserService(repository, hasher);
     }
 
     private User register(String name, String email) {
-        return service.execute(name, email, "123", BIRTH_DATE);
+        return service.execute(name, email, RAW_PASSWORD, BIRTH_DATE);
     }
 
     // ---------- criar ----------
 
     @Test
     void shouldCreateUserAndPersistIt() {
-        User created = service.execute("Pedro", "pedro@email.com", "123", BIRTH_DATE);
+        User created = service.execute("Pedro", "pedro@email.com", RAW_PASSWORD, BIRTH_DATE);
 
         assertNotNull(created.getId());
         assertEquals("Pedro", created.getName());
         assertEquals("pedro@email.com", created.getEmail());
         assertEquals(BIRTH_DATE, created.getBirthDate());
         assertTrue(repository.findById(created.getId()).isPresent());
+    }
+
+    @Test
+    void shouldStoreHashedPasswordInsteadOfRawPassword() {
+        User created = register("Pedro", "pedro@email.com");
+
+        User stored = repository.findById(created.getId()).orElseThrow();
+        assertEquals(HASHED_PASSWORD, stored.getPasswordHash());
+        assertNotEquals(RAW_PASSWORD, stored.getPasswordHash());
     }
 
     @Test
@@ -71,7 +85,7 @@ class UserServiceTest {
         LocalDate tomorrow = LocalDate.now().plusDays(1);
 
         assertThrows(InvalidBirthDateException.class,
-                () -> service.execute("Pedro", "pedro@email.com", "123", tomorrow));
+                () -> service.execute("Pedro", "pedro@email.com", RAW_PASSWORD, tomorrow));
 
         assertEquals(0, repository.count());
     }
@@ -113,21 +127,35 @@ class UserServiceTest {
         assertEquals("Pedro Reis", stored.getName());
         assertEquals("novo@email.com", stored.getEmail());
         assertEquals(newBirthDate, stored.getBirthDate());
-        assertEquals("nova-senha", stored.getPassword());
+        assertEquals(FakePasswordHasher.PREFIX + "nova-senha", stored.getPasswordHash());
         assertTrue(repository.findByEmail("pedro@email.com").isEmpty());
     }
 
     @Test
     void shouldKeepCurrentDataWhenUpdatingWithNullFields() {
         User created = register("Pedro", "pedro@email.com");
+        int hashesBefore = hasher.hashCount();
 
         service.update(created.getId(), null, null, null, null);
 
         User stored = repository.findById(created.getId()).orElseThrow();
         assertEquals("Pedro", stored.getName());
         assertEquals("pedro@email.com", stored.getEmail());
-        assertEquals("123", stored.getPassword());
+        assertEquals(HASHED_PASSWORD, stored.getPasswordHash());
         assertEquals(BIRTH_DATE, stored.getBirthDate());
+        // Sem senha nova, não há por que gerar outro hash.
+        assertEquals(hashesBefore, hasher.hashCount());
+    }
+
+    @Test
+    void shouldKeepPasswordHashWhenUpdatingWithBlankPassword() {
+        User created = register("Pedro", "pedro@email.com");
+        int hashesBefore = hasher.hashCount();
+
+        service.update(created.getId(), null, null, "   ", null);
+
+        assertEquals(HASHED_PASSWORD, repository.findById(created.getId()).orElseThrow().getPasswordHash());
+        assertEquals(hashesBefore, hasher.hashCount());
     }
 
     @Test

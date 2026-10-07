@@ -11,29 +11,30 @@ public class User {
     private UUID id;
     private String name;
     private String email;
-    private String password;
+    /** Hash da senha (nunca a senha em texto puro). Quem gera o hash é o UserService, via PasswordHasherPort. */
+    private String passwordHash;
     private LocalDate birthDate;
     private LocalDateTime createdAt;
 
     /** Reconstituição a partir da persistência: não valida, o dado já foi validado na criação. */
-    public User (UUID id, String name, String email, String password, LocalDate birthDate, LocalDateTime createdAt) {
+    public User (UUID id, String name, String email, String passwordHash, LocalDate birthDate, LocalDateTime createdAt) {
         this.id = id;
         this.name = name;
         this.email = email;
-        this.password = password;
+        this.passwordHash = passwordHash;
         this.birthDate = birthDate;
         this.createdAt = createdAt;
     }
 
     /** Criação de um usuário novo: aplica as regras de negócio. */
-    public User (String name, String email, String password, LocalDate birthDate) {
+    public User (String name, String email, String passwordHash, LocalDate birthDate) {
         validateEmail(email);
         validateBirthDate(birthDate);
 
         this.id = UUID.randomUUID();
         this.name = name;
         this.email = email;
-        this.password = password;
+        this.passwordHash = passwordHash;
         this.birthDate = birthDate;
         this.createdAt = LocalDateTime.now();
     }
@@ -65,16 +66,17 @@ public class User {
         }
     }
 
-    public void updatePassword (String newPassword) {
-        if (newPassword != null && !newPassword.trim().isEmpty()) {
-            this.password = newPassword;
+    /** Recebe um hash já pronto. Nulo ou em branco significa "não alterar". */
+    public void updatePasswordHash (String newPasswordHash) {
+        if (newPasswordHash != null && !newPasswordHash.trim().isEmpty()) {
+            this.passwordHash = newPasswordHash;
         }
     }
 
     public UUID getId () { return id; }
     public String getName () { return name; }
     public String getEmail () { return email; }
-    public String getPassword () { return password; }
+    public String getPasswordHash () { return passwordHash; }
     public LocalDate getBirthDate () { return birthDate; }
     public LocalDateTime getCreatedAt () { return createdAt; }
 }

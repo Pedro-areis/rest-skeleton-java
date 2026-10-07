@@ -6,6 +6,7 @@ import dev.pedroreis.rest_skeleton_java.user.ports.inbound.CreateUserUseCase;
 import dev.pedroreis.rest_skeleton_java.user.ports.inbound.DeleteUserUseCase;
 import dev.pedroreis.rest_skeleton_java.user.ports.inbound.FindUserUseCase;
 import dev.pedroreis.rest_skeleton_java.user.ports.inbound.UpdateUserUseCase;
+import dev.pedroreis.rest_skeleton_java.user.ports.outbound.PasswordHasherPort;
 import dev.pedroreis.rest_skeleton_java.user.ports.outbound.UserRepositoryPort;
 
 import java.time.LocalDate;
@@ -14,9 +15,11 @@ import java.util.UUID;
 
 public class UserService implements CreateUserUseCase, FindUserUseCase, UpdateUserUseCase, DeleteUserUseCase {
     private final UserRepositoryPort userRepositoryPort;
+    private final PasswordHasherPort passwordHasherPort;
 
-    public UserService(UserRepositoryPort userRepositoryPort) {
+    public UserService(UserRepositoryPort userRepositoryPort, PasswordHasherPort passwordHasherPort) {
         this.userRepositoryPort = userRepositoryPort;
+        this.passwordHasherPort = passwordHasherPort;
     }
 
     @Override
@@ -26,7 +29,9 @@ public class UserService implements CreateUserUseCase, FindUserUseCase, UpdateUs
             throw new EmailAlreadyExistsException();
         }
 
-        User user = new User(name, email, password, birthDate);
+        // O hash é caro (de propósito), então só é gerado depois das verificações baratas.
+        String passwordHash = passwordHasherPort.hash(password);
+        User user = new User(name, email, passwordHash, birthDate);
         return userRepositoryPort.save(user);
     }
 
@@ -42,8 +47,8 @@ public class UserService implements CreateUserUseCase, FindUserUseCase, UpdateUs
 
         // Primeiro aplica as mudanças (o domínio valida e-mail e data), depois confere a unicidade.
         user.updateProfile(name, email, birthDate);
-        user.updatePassword(password);
         ensureEmailIsNotUsedByAnotherUser(user);
+        user.updatePasswordHash(hashIfFilled(password));
 
         return userRepositoryPort.save(user);
     }
@@ -54,6 +59,17 @@ public class UserService implements CreateUserUseCase, FindUserUseCase, UpdateUs
         userRepositoryPort.findById(id)
                 .orElseThrow(UserNotFoundException::new);
         userRepositoryPort.deleteById(id);
+    }
+
+    /**
+     * Só gera hash quando há senha nova. Nulo ou em branco significa "não alterar":
+     * devolvemos null e o User ignora (a regra de "não alterar" fica no domínio).
+     */
+    private String hashIfFilled(String password) {
+        if (password == null || password.trim().isEmpty()) {
+            return null;
+        }
+        return passwordHasherPort.hash(password);
     }
 
     /**

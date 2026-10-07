@@ -3,6 +3,7 @@ package dev.pedroreis.rest_skeleton_java.user.adapters.inbound;
 import dev.pedroreis.rest_skeleton_java.user.domain.exception.EmailAlreadyExistsException;
 import dev.pedroreis.rest_skeleton_java.user.domain.exception.InvalidBirthDateException;
 import dev.pedroreis.rest_skeleton_java.user.domain.exception.InvalidEmailException;
+import dev.pedroreis.rest_skeleton_java.user.domain.exception.InvalidPasswordException;
 import dev.pedroreis.rest_skeleton_java.user.domain.exception.UserNotFoundException;
 import dev.pedroreis.rest_skeleton_java.user.ports.inbound.CreateUserUseCase;
 import dev.pedroreis.rest_skeleton_java.user.ports.inbound.DeleteUserUseCase;
@@ -140,6 +141,17 @@ class GlobalExceptionHandlerTest {
                         .content("{\"name\":\"Novo Nome\"}"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value("Usuário não encontrado"));
+    }
+
+    @Test
+    void shouldReturn400WhenPasswordIsTooLong() throws Exception {
+        when(createUserUseCase.execute(any(), any(), any(), any())).thenThrow(new InvalidPasswordException());
+
+        mockMvc.perform(post("/api/v1/users/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(VALID_BODY))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Senha inválida: o máximo é 72 bytes"));
     }
 
     @Test

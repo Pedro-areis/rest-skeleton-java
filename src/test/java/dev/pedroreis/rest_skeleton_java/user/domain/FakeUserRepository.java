@@ -53,7 +53,7 @@ public class FakeUserRepository implements UserRepositoryPort {
 
     private static User copyOf(User user) {
         // Usa o construtor de reconstituição: não valida, só copia.
-        return new User(user.getId(), user.getName(), user.getEmail(), user.getPassword(),
+        return new User(user.getId(), user.getName(), user.getEmail(), user.getPasswordHash(),
                 user.getBirthDate(), user.getCreatedAt());
     }
 }
