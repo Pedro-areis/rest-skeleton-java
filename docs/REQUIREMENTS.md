@@ -11,6 +11,12 @@ Dados obrigatórios:
 - e-mail
 - senha
 
+Regras da senha:
+
+- mínimo de 8 caracteres
+- máximo de 72 bytes (limite do BCrypt, ver ADR 003)
+- não exigir letra maiúscula, números ou símbolos
+
 ---
 
 ## RF02 — Autenticar Usuário
@@ -20,11 +26,14 @@ O sistema deve permitir que o usuário faça o login com as seguintes informaç�
 - e-mail
 - senha
 
+O login devolve um access token e um refresh token. O sistema deve permitir obter um novo
+access token a partir de um refresh token válido.
+
 ---
 
-## RF03 — Consultar usuários pelo e-mail
+## RF03 — Consultar os próprios dados
 
-O sistema deve permitir que o usuário consulte seus dados.
+O sistema deve permitir que o usuário autenticado consulte seus próprios dados.
 
 ---
 
@@ -46,7 +55,9 @@ Os campos que podem ser alterados são:
 
 ## RF05 — Excluir um Usuário
 
-O sistema deve permitir que o usuário exclua seu cadastro no sistema. O administrador também pode excluir os dados do usuário.
+O sistema deve permitir que o usuário autenticado exclua o próprio cadastro.
+
+O sistema não possui administrador nem papéis (ver "Fora do escopo" em `PROJECT.md`).
 
 ---
 
