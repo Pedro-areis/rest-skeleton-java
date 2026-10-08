@@ -37,18 +37,33 @@ Marque `[x]` ao concluir. Uma tarefa por vez, com testes.
   - Cadastro e atualização gravam o hash
   - ADR: 003 | Depende de: 4
 
+- [ ] **5.1 Regra de senha mínima**
+  - Regra (RF01): mínimo de 8 caracteres, sem exigência de maiúscula, número ou símbolo
+  - Vale no cadastro e na troca de senha (`PATCH`)
+  - O máximo de 72 bytes já existe, no adaptador BCrypt (ADR 003)
+  - **Decisões em aberto** (do dono do projeto, antes de implementar):
+    - Onde a regra mora no domínio
+    - Qual exceção lançar
+    - Como contar caracteres e como tratar espaços
+    - Validar também no DTO ou só no domínio
+  - Requisitos: RF01, RF04, RNF03 | Depende de: 5
+
 - [ ] **6. `TokenPort`, adaptador JWT, login e renovação**
-  - HS256, access token de 1 hora, refresh token de 7 dias (só assinado)
-  - Casos de uso: login e renovação do token
-  - Plano ainda **aguardando aprovação** (ao aprovar, registrar no ADR 002):
-    - Biblioteca Nimbus em vez de JJWT (o JJWT usa Jackson 2; o Spring Boot 4 usa Jackson 3)
-    - `sub` do token = id do usuário (o e-mail pode mudar)
-    - Claim `type` (`access` ou `refresh`), para o refresh token não servir como access token
-    - A renovação devolve só um novo access token
-    - Mesmo erro e mesma mensagem para e-mail inexistente e senha errada
-    - Chave secreta vinda de propriedade/variável de ambiente, não de constante no código (decidir o nome: já existe `api.security.token.secret` no `application.properties`)
-    - `Clock` injetado no adaptador JWT, para os testes controlarem o tempo
-    - Antes de começar: mover `GlobalExceptionHandler` e `ErrorResponse` para um pacote compartilhado (`shared/web`)
+  - **Decidido** (ADR 002): HS256, access token de 1 hora, refresh token de 7 dias (só assinado)
+  - Casos de uso: login (e-mail + senha → access e refresh token) e renovação (refresh token → novo access token)
+  - **Decisões em aberto** (do dono do projeto, uma por vez; as aprovadas vão para o ADR 002 ou 003):
+    - **Biblioteca JWT** (fica dentro do adaptador, atrás do `TokenPort`):
+      - JJWT (terceiro)
+      - Nimbus JOSE+JWT direto
+      - `NimbusJwtEncoder`/`NimbusJwtDecoder` do Spring Security (embrulham o Nimbus)
+      - Nota: o resumo dizia que o JJWT usa Jackson 2 e o Boot 4 usa Jackson 3. **Não foi verificado**; conferir nas dependências antes de decidir
+    - **O que o `sub` do token guarda:** id do usuário ou e-mail (o e-mail pode mudar)
+    - **Como diferenciar access de refresh token:** claim `type`, ou outro mecanismo (por exemplo, chaves ou durações distintas)
+    - **O que a renovação devolve:** só um novo access token, ou um par novo (access e refresh)
+    - **Mensagem de erro no login:** a mesma para e-mail inexistente e senha errada, ou mensagens distintas
+    - **Onde fica a chave secreta:** propriedade lida de variável de ambiente (já existe `api.security.token.secret` no `application.properties`; decidir se esse nome fica) ou outra forma
+    - **Controle do tempo nos testes:** `Clock` injetado no adaptador, ou outra técnica
+    - **Pré-requisito estrutural:** `GlobalExceptionHandler` e `ErrorResponse` hoje estão em `user`. O `auth` vai precisar deles e a direção de dependência é `auth → user`, então decidir para onde vão (por exemplo, um pacote compartilhado `shared/web`)
   - ADR: 002 | Requisitos: RF02 | Depende de: 5
 
 - [ ] **7. Spring Security**
