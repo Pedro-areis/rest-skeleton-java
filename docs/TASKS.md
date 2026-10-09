@@ -37,15 +37,16 @@ Marque `[x]` ao concluir. Uma tarefa por vez, com testes.
   - Cadastro e atualização gravam o hash
   - ADR: 003 | Depende de: 4
 
-- [ ] **5.1 Regra de senha mínima**
+- [x] **5.1 Regra de senha mínima**
   - Regra (RF01): mínimo de 8 caracteres, sem exigência de maiúscula, número ou símbolo
   - Vale no cadastro e na troca de senha (`PATCH`)
   - O máximo de 72 bytes já existe, no adaptador BCrypt (ADR 003)
-  - **Decisões em aberto** (do dono do projeto, antes de implementar):
-    - Onde a regra mora no domínio
-    - Qual exceção lançar
-    - Como contar caracteres e como tratar espaços
-    - Validar também no DTO ou só no domínio
+  - **Decisões tomadas:**
+    - A regra mora num método privado do `UserService` (`validatePassword`)
+    - Reusa `InvalidPasswordException`, com a mensagem cobrindo mínimo e máximo
+    - Conta-se com `String.length()` e a senha não é alterada (sem `trim`); espaços contam como caracteres
+    - Senha só de espaços não é aceita: no cadastro o `@NotBlank` rejeita e no `PATCH` continua significando "não alterar"
+    - Validação só no domínio, sem `@Size` no DTO (um `@Size(min = 8)` rejeitaria `""` e quebraria o "vazio não altera" do `PATCH`)
   - Requisitos: RF01, RF04, RNF03 | Depende de: 5
 
 - [ ] **6. `TokenPort`, adaptador JWT, login e renovação**
