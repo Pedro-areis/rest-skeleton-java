@@ -3,6 +3,7 @@ package dev.pedroreis.rest_skeleton_java.user.domain;
 import dev.pedroreis.rest_skeleton_java.user.domain.exception.EmailAlreadyExistsException;
 import dev.pedroreis.rest_skeleton_java.user.domain.exception.InvalidBirthDateException;
 import dev.pedroreis.rest_skeleton_java.user.domain.exception.InvalidEmailException;
+import dev.pedroreis.rest_skeleton_java.user.domain.exception.InvalidPasswordException;
 import dev.pedroreis.rest_skeleton_java.user.domain.exception.UserNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class UserServiceTest {
 
     private static final LocalDate BIRTH_DATE = LocalDate.of(2000, 1, 15);
-    private static final String RAW_PASSWORD = "123";
+    private static final String RAW_PASSWORD = "senha-valida";
     private static final String HASHED_PASSWORD = FakePasswordHasher.PREFIX + RAW_PASSWORD;
 
     private FakeUserRepository repository;
@@ -88,6 +89,70 @@ class UserServiceTest {
                 () -> service.execute("Pedro", "pedro@email.com", RAW_PASSWORD, tomorrow));
 
         assertEquals(0, repository.count());
+    }
+
+    // ---------- regra de senha (cadastro) ----------
+
+    @Test
+    void shouldNotCreateUserWhenPasswordIsShorterThanMinimum() {
+        // 7 caracteres: um a menos que o mínimo.
+        assertThrows(InvalidPasswordException.class,
+                () -> service.execute("Pedro", "pedro@email.com", "1234567", BIRTH_DATE));
+
+        assertEquals(0, repository.count());
+        // Senha rejeitada nunca chega ao hash (que é caro de propósito).
+        assertEquals(0, hasher.hashCount());
+    }
+
+    @Test
+    void shouldNotCreateUserWhenPasswordIsNull() {
+        assertThrows(InvalidPasswordException.class,
+                () -> service.execute("Pedro", "pedro@email.com", null, BIRTH_DATE));
+
+        assertEquals(0, repository.count());
+    }
+
+    @Test
+    void shouldCreateUserWhenPasswordHasExactlyMinimumLength() {
+        User created = service.execute("Pedro", "pedro@email.com", "12345678", BIRTH_DATE);
+
+        assertEquals(FakePasswordHasher.PREFIX + "12345678",
+                repository.findById(created.getId()).orElseThrow().getPasswordHash());
+    }
+
+    @Test
+    void shouldNotRequireUppercaseDigitsOrSymbols() {
+        // Só letras minúsculas: a regra é apenas o tamanho (RF01).
+        assertDoesNotThrow(() -> service.execute("Pedro", "pedro@email.com", "aaaaaaaa", BIRTH_DATE));
+    }
+
+    @Test
+    void shouldCountSpacesAsCharactersAndKeepThemUntouched() {
+        // 4 letras + 4 espaços = 8 caracteres. Os espaços contam e a senha segue sem trim.
+        String passwordWithTrailingSpaces = "abcd    ";
+
+        User created = service.execute("Pedro", "pedro@email.com", passwordWithTrailingSpaces, BIRTH_DATE);
+
+        assertEquals(FakePasswordHasher.PREFIX + passwordWithTrailingSpaces,
+                repository.findById(created.getId()).orElseThrow().getPasswordHash());
+    }
+
+    @Test
+    void shouldNotCreateUserWhenPasswordWithSpacesIsShorterThanMinimum() {
+        // 3 letras + 4 espaços = 7 caracteres.
+        assertThrows(InvalidPasswordException.class,
+                () -> service.execute("Pedro", "pedro@email.com", "abc    ", BIRTH_DATE));
+
+        assertEquals(0, repository.count());
+    }
+
+    @Test
+    void shouldCountCharactersByStringLength() {
+        // Decisão da Task 5.1: conta-se com String.length() (unidades UTF-16).
+        // Cada emoji ocupa 2 unidades, então 4 emojis somam 8 e atingem o mínimo.
+        String fourEmojis = "😀😀😀😀";
+
+        assertDoesNotThrow(() -> service.execute("Pedro", "pedro@email.com", fourEmojis, BIRTH_DATE));
     }
 
     // ---------- consultar ----------
@@ -156,6 +221,31 @@ class UserServiceTest {
 
         assertEquals(HASHED_PASSWORD, repository.findById(created.getId()).orElseThrow().getPasswordHash());
         assertEquals(hashesBefore, hasher.hashCount());
+    }
+
+    @Test
+    void shouldNotUpdateWhenNewPasswordIsShorterThanMinimum() {
+        User created = register("Pedro", "pedro@email.com");
+        int hashesBefore = hasher.hashCount();
+
+        // O nome vem junto: se a senha for rejeitada, nada do que veio na requisição pode ser gravado.
+        assertThrows(InvalidPasswordException.class,
+                () -> service.update(created.getId(), "Pedro Reis", null, "1234567", null));
+
+        User stored = repository.findById(created.getId()).orElseThrow();
+        assertEquals("Pedro", stored.getName());
+        assertEquals(HASHED_PASSWORD, stored.getPasswordHash());
+        assertEquals(hashesBefore, hasher.hashCount());
+    }
+
+    @Test
+    void shouldUpdatePasswordWhenNewPasswordHasExactlyMinimumLength() {
+        User created = register("Pedro", "pedro@email.com");
+
+        service.update(created.getId(), null, null, "12345678", null);
+
+        assertEquals(FakePasswordHasher.PREFIX + "12345678",
+                repository.findById(created.getId()).orElseThrow().getPasswordHash());
     }
 
     @Test

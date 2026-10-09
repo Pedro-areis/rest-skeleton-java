@@ -10,8 +10,8 @@ Java 21, Spring Boot 4.0.x, PostgreSQL, Flyway, JUnit. Projeto de **estudo**: o 
 - `docs/ADRs/`: decisões de arquitetura, com contexto e trade-offs. Se for contrariar um ADR, avise antes.
 
 ## Comandos
-- Testes: `./mvnw test`
-- Build: `./mvnw clean package`
+- Testes: `./mvnw test -Dmaven.resources.skip=true`
+- **Problema conhecido:** `./mvnw test` sem essa flag falha na cópia do `application.properties` (ISO-8859-1 lido como UTF-8). O contorno só serve para os testes que não precisam do arquivo. O build (`./mvnw clean package`) tem o mesmo problema. Correção definitiva pendente.
 - Só o `contextLoads` precisa do PostgreSQL no ar (variáveis `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`; veja `application.properties`). Os demais testes rodam sem banco.
 
 ## Arquitetura (hexagonal por funcionalidade, ver ADR 001)
