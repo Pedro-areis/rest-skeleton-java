@@ -1,6 +1,7 @@
 package dev.pedroreis.rest_skeleton_java.user.domain;
 
 import dev.pedroreis.rest_skeleton_java.user.domain.exception.EmailAlreadyExistsException;
+import dev.pedroreis.rest_skeleton_java.user.domain.exception.InvalidPasswordException;
 import dev.pedroreis.rest_skeleton_java.user.domain.exception.UserNotFoundException;
 import dev.pedroreis.rest_skeleton_java.user.ports.inbound.CreateUserUseCase;
 import dev.pedroreis.rest_skeleton_java.user.ports.inbound.DeleteUserUseCase;
@@ -24,6 +25,8 @@ public class UserService implements CreateUserUseCase, FindUserUseCase, UpdateUs
 
     @Override
     public User execute(String name, String email, String password, LocalDate birthDate) {
+        validatePassword(password);
+
         Optional<User> existingUser = userRepositoryPort.findByEmail(email);
         if (existingUser.isPresent()) {
             throw new EmailAlreadyExistsException();
@@ -69,7 +72,21 @@ public class UserService implements CreateUserUseCase, FindUserUseCase, UpdateUs
         if (password == null || password.trim().isEmpty()) {
             return null;
         }
+        validatePassword(password);
         return passwordHasherPort.hash(password);
+    }
+
+    /**
+     * Regra de senha do RF01: mínimo de 8 caracteres, sem exigência de maiúscula, número ou símbolo.
+     * Espaços contam como caracteres e a senha não é alterada (sem trim). O máximo de 72 bytes
+     * é do BCrypt e fica no adaptador.
+     *
+     * @throws InvalidPasswordException quando a senha não atende à regra
+     */
+    private void validatePassword(String password) {
+        if (password == null || password.length() < 8) {
+            throw new InvalidPasswordException();
+        }
     }
 
     /**

@@ -151,7 +151,7 @@ class GlobalExceptionHandlerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(VALID_BODY))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Senha inválida: o máximo é 72 bytes"));
+                .andExpect(jsonPath("$.message").value("Senha inválida: deve ter no mínimo 8 caracteres e no máximo 72 bytes"));
     }
 
     @Test
