@@ -33,7 +33,7 @@ Detalhes decididos na Task 6:
 - RS256/ES256 (par público/privado) seria mais adequado para múltiplos serviços.
 - O valor padrão do segredo está no repositório. Em qualquer ambiente fora do local, `JWT_SECRET` deve ser definida, senão qualquer pessoa consegue forjar tokens.
 - A checagem do `type` depende de cada operação lembrar de exigi-lo; o `TokenPort` concentra essa regra para reduzir o risco.
-- O `jjwt-jackson` usa o Jackson 2, e o Spring Boot 4 usa o Jackson 3. Os dois convivem no classpath (pacotes diferentes), ao custo de duas versões de Jackson.
+- O `jjwt-jackson` usa o Jackson 2, e o Spring Boot 4 usa o Jackson 3. Os dois convivem no classpath (pacotes diferentes), ao custo de duas versões de Jackson. Conferido com `dependency:tree`: o Jackson 3 (`tools.jackson`) vem do Boot, e o Jackson 2 (`com.fasterxml`) entra só pelo `jjwt-jackson`.
 
 ## Alternativas descartadas
 - **Biblioteca:** Nimbus JOSE+JWT direto (API mais verbosa) e `NimbusJwtEncoder`/`Decoder` do Spring Security (acopla o adaptador a tipos do Spring e puxa o modelo de resource server).

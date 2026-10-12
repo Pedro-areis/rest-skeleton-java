@@ -49,7 +49,7 @@ Marque `[x]` ao concluir. Uma tarefa por vez, com testes.
     - Validação só no domínio, sem `@Size` no DTO (um `@Size(min = 8)` rejeitaria `""` e quebraria o "vazio não altera" do `PATCH`)
   - Requisitos: RF01, RF04, RNF03 | Depende de: 5
 
-- [ ] **6. `TokenPort`, adaptador JWT, login e renovação**
+- [x] **6. `TokenPort`, adaptador JWT, login e renovação**
   - Decisões em ADR 002 (JWT: biblioteca, `sub`, tipo do token, renovação, erro de login, segredo, `Clock`) e ADR 005 (tratamento de erros compartilhado)
   - Casos de uso: login (e-mail + senha → access e refresh token) e renovação (refresh token → novo access token)
   - Pré-requisito: mover `ErrorResponse` e o handler genérico para `shared/web`, com um advice por funcionalidade
