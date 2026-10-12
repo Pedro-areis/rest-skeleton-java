@@ -9,3 +9,4 @@ Decisões menores ficam no `docs/TASKS.md` ou no código.
 | [002](002-jwt-hs256-access-token-1h.md) | JWT HS256, access token de 1 hora e refresh token de 7 dias | Decidido |
 | [003](003-hash-de-senha-bcrypt.md) | Hash de senha com BCrypt, atrás de uma porta | Decidido e implementado |
 | [004](004-transacoes.md) | Transações | Adiado |
+| [005](005-tratamento-de-erros-compartilhado.md) | Tratamento de erros: formato compartilhado e um advice por funcionalidade | Decidido |
