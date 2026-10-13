@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("api/v1/users")
+@RequestMapping("api/v1")
 @RequiredArgsConstructor
 public class UserController {
     private final CreateUserUseCase createUserUseCase;
@@ -25,7 +25,7 @@ public class UserController {
     private final UpdateUserUseCase updateUserUseCase;
     private final DeleteUserUseCase deleteUserUseCase;
 
-    @PostMapping("/register")
+    @PostMapping("/public/users/register")
     public ResponseEntity<UserResponse> registerUser(
             @Valid @RequestBody UserRequest request
     ) {
@@ -40,7 +40,7 @@ public class UserController {
                 .body(UserResponse.fromDomain(createUser));
     }
 
-    @PatchMapping("/{userId}")
+    @PatchMapping("/users/{userId}")
     public ResponseEntity<UserResponse> updateUser(
             @PathVariable UUID userId,
             @Valid @RequestBody UpdateUserRequest request
@@ -56,7 +56,7 @@ public class UserController {
                 .body(UserResponse.fromDomain(updated));
     }
 
-    @DeleteMapping("/{userId}")
+    @DeleteMapping("/users/{userId}")
     public ResponseEntity<Void> deleteUser (
             @PathVariable UUID userId
     ) {

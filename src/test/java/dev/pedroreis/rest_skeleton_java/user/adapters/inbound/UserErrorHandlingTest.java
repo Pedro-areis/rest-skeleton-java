@@ -64,7 +64,7 @@ class UserErrorHandlingTest {
     void shouldReturn409WhenEmailAlreadyExists() throws Exception {
         when(createUserUseCase.execute(any(), any(), any(), any())).thenThrow(new EmailAlreadyExistsException());
 
-        mockMvc.perform(post("/api/v1/users/register")
+        mockMvc.perform(post("/api/v1/public/users/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(VALID_BODY))
                 .andExpect(status().isConflict())
@@ -76,7 +76,7 @@ class UserErrorHandlingTest {
     void shouldReturn400WhenDomainRejectsEmail() throws Exception {
         when(createUserUseCase.execute(any(), any(), any(), any())).thenThrow(new InvalidEmailException());
 
-        mockMvc.perform(post("/api/v1/users/register")
+        mockMvc.perform(post("/api/v1/public/users/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(VALID_BODY))
                 .andExpect(status().isBadRequest())
@@ -87,7 +87,7 @@ class UserErrorHandlingTest {
     void shouldReturn400WhenDomainRejectsBirthDate() throws Exception {
         when(createUserUseCase.execute(any(), any(), any(), any())).thenThrow(new InvalidBirthDateException());
 
-        mockMvc.perform(post("/api/v1/users/register")
+        mockMvc.perform(post("/api/v1/public/users/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(VALID_BODY))
                 .andExpect(status().isBadRequest())
@@ -96,7 +96,7 @@ class UserErrorHandlingTest {
 
     @Test
     void shouldReturn400WithFieldErrorsWhenBodyIsInvalid() throws Exception {
-        mockMvc.perform(post("/api/v1/users/register")
+        mockMvc.perform(post("/api/v1/public/users/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\":\"\",\"email\":\"nao-e-email\",\"password\":\"123\",\"birthDate\":\"2000-01-15\"}"))
                 .andExpect(status().isBadRequest())
@@ -107,7 +107,7 @@ class UserErrorHandlingTest {
 
     @Test
     void shouldReturn400WithFieldErrorWhenBirthDateIsMissing() throws Exception {
-        mockMvc.perform(post("/api/v1/users/register")
+        mockMvc.perform(post("/api/v1/public/users/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\":\"Pedro\",\"email\":\"pedro@email.com\",\"password\":\"123\"}"))
                 .andExpect(status().isBadRequest())
@@ -117,7 +117,7 @@ class UserErrorHandlingTest {
 
     @Test
     void shouldReturn400WhenBirthDateHasInvalidFormat() throws Exception {
-        mockMvc.perform(post("/api/v1/users/register")
+        mockMvc.perform(post("/api/v1/public/users/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\":\"Pedro\",\"email\":\"pedro@email.com\",\"password\":\"123\",\"birthDate\":\"31/12/2000\"}"))
                 .andExpect(status().isBadRequest())
@@ -126,7 +126,7 @@ class UserErrorHandlingTest {
 
     @Test
     void shouldReturn400WhenJsonIsMalformed() throws Exception {
-        mockMvc.perform(post("/api/v1/users/register")
+        mockMvc.perform(post("/api/v1/public/users/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{ isto nao e json"))
                 .andExpect(status().isBadRequest())
@@ -148,7 +148,7 @@ class UserErrorHandlingTest {
     void shouldReturn400WhenPasswordIsTooLong() throws Exception {
         when(createUserUseCase.execute(any(), any(), any(), any())).thenThrow(new InvalidPasswordException());
 
-        mockMvc.perform(post("/api/v1/users/register")
+        mockMvc.perform(post("/api/v1/public/users/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(VALID_BODY))
                 .andExpect(status().isBadRequest())
@@ -190,7 +190,7 @@ class UserErrorHandlingTest {
         when(createUserUseCase.execute(any(), any(), any(), any()))
                 .thenThrow(new RuntimeException("senha do banco = segredo"));
 
-        mockMvc.perform(post("/api/v1/users/register")
+        mockMvc.perform(post("/api/v1/public/users/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(VALID_BODY))
                 .andExpect(status().isInternalServerError())
@@ -201,7 +201,7 @@ class UserErrorHandlingTest {
     @Test
     void shouldKeepSpringStatusForUnsupportedMethod() throws Exception {
         // GET em /register não existe (só POST): o Spring responde 405 e o catch-all preserva o status.
-        mockMvc.perform(get("/api/v1/users/register"))
+        mockMvc.perform(get("/api/v1/public/users/register"))
                 .andExpect(status().isMethodNotAllowed())
                 .andExpect(jsonPath("$.status").value(405));
     }
