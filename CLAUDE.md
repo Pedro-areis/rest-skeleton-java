@@ -15,18 +15,19 @@ Java 21, Spring Boot 4.0.x, PostgreSQL, Flyway, JUnit. Projeto de **estudo**: o 
 - Só o `contextLoads` precisa do PostgreSQL no ar (variáveis `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`; veja `application.properties`). Os demais testes rodam sem banco.
 
 ## Arquitetura (hexagonal por funcionalidade, ver ADR 001)
-Pacote base: `dev.pedroreis.rest_skeleton_java`. Cada funcionalidade (hoje só `user`) tem `domain`, `ports` (`inbound`/`outbound`) e `adapters` (`inbound`/`outbound`).
+Pacote base: `dev.pedroreis.rest_skeleton_java`. Cada funcionalidade (hoje `user` e `auth`) tem `domain`, `ports` (`inbound`/`outbound`) e `adapters` (`inbound`/`outbound`).
 
 **Regra de dependência (a mais importante):**
 - `domain` não importa Spring, JPA, Jackson nem nada de `adapters`. Só Java puro.
 - `adapters` dependem de `ports` e `domain`, nunca o contrário.
 - Entre funcionalidades a direção é uma só: `auth → user`.
+- `shared/web` (`ErrorResponse`, `GlobalExceptionHandler` genérico) não importa nada de `user` nem de `auth`. Cada funcionalidade tem o seu advice de exceções (ADR 005).
 - O `UserService` é registrado como bean à mão em `config/UserBeanConfig`, sem `@Service`.
 
 **Convenções já decididas:**
 - DTO valida presença e formato (Bean Validation). O domínio é dono das regras de negócio.
 - Erros de negócio são `DomainException` e filhas, traduzidas em `GlobalExceptionHandler`. Mensagens em português.
-- Hash de senha e geração de token ficam atrás de portas (`PasswordHasherPort`, e `TokenPort` na Task 6).
+- Hash de senha e geração de token ficam atrás de portas (`PasswordHasherPort` e `TokenPort`).
 - O id do usuário é gerado pelo domínio, não pelo banco.
 - Testes de domínio usam fakes (`FakeUserRepository`, `FakePasswordHasher`), sem Spring e sem banco.
 - Schema só muda por migração Flyway (`src/main/resources/db/migration`). `ddl-auto=validate`.

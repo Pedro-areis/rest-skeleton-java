@@ -1,5 +1,6 @@
 package dev.pedroreis.rest_skeleton_java.user.adapters.inbound;
 
+import dev.pedroreis.rest_skeleton_java.shared.web.GlobalExceptionHandler;
 import dev.pedroreis.rest_skeleton_java.user.domain.exception.EmailAlreadyExistsException;
 import dev.pedroreis.rest_skeleton_java.user.domain.exception.InvalidBirthDateException;
 import dev.pedroreis.rest_skeleton_java.user.domain.exception.InvalidEmailException;
@@ -31,10 +32,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Teste web "standalone": sobe só o controller + o advice, sem contexto Spring,
+ * Teste web "standalone": sobe só o controller + os advices (de user e o genérico, de shared/web), sem contexto Spring,
  * sem Spring Security e sem banco.
  */
-class GlobalExceptionHandlerTest {
+class UserErrorHandlingTest {
 
     private CreateUserUseCase createUserUseCase;
     private UpdateUserUseCase updateUserUseCase;
@@ -52,7 +53,7 @@ class GlobalExceptionHandlerTest {
                 createUserUseCase, findUserUseCase, updateUserUseCase, deleteUserUseCase);
 
         mockMvc = MockMvcBuilders.standaloneSetup(controller)
-                .setControllerAdvice(new GlobalExceptionHandler())
+                .setControllerAdvice(new UserExceptionHandler(), new GlobalExceptionHandler())
                 .build();
     }
 
