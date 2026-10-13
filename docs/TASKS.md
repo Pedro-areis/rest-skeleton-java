@@ -56,7 +56,8 @@ Marque `[x]` ao concluir. Uma tarefa por vez, com testes.
   - Corrigir `api.security.token.expiration` (hoje `2`) para duas durações: access 1 hora e refresh 7 dias
   - ADR: 002, 005 | Requisitos: RF02 | Depende de: 5
 
-- [ ] **7. Spring Security**
+- [x] **7. Spring Security**
+  - Decisões em ADR 006 (filtro, principal `UUID`, rotas públicas sob `/api/v1/public/**`, 401/403, CSRF e CORS, testes)
   - `SecurityFilterChain`, filtro que lê o token
   - Rotas públicas: cadastro, login, renovação
   - O `catch-all` do `GlobalExceptionHandler` não pode engolir `AccessDeniedException` e `AuthenticationException`, senão 401/403 viram 500

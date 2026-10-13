@@ -45,7 +45,7 @@ class AuthControllerTest {
         when(loginUseCase.login("pedro@email.com", "senha-segura-123"))
                 .thenReturn(new AuthTokens("access-123", "refresh-456"));
 
-        mockMvc.perform(post("/api/v1/auth/login")
+        mockMvc.perform(post("/api/v1/public/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\":\"pedro@email.com\",\"password\":\"senha-segura-123\"}"))
                 .andExpect(status().isOk())
@@ -58,7 +58,7 @@ class AuthControllerTest {
         when(loginUseCase.login("pedro@email.com", "errada-123456"))
                 .thenThrow(new InvalidCredentialsException());
 
-        mockMvc.perform(post("/api/v1/auth/login")
+        mockMvc.perform(post("/api/v1/public/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\":\"pedro@email.com\",\"password\":\"errada-123456\"}"))
                 .andExpect(status().isUnauthorized())
@@ -68,7 +68,7 @@ class AuthControllerTest {
 
     @Test
     void loginShouldReturn400WithFieldErrorsWhenBodyIsIncomplete() throws Exception {
-        mockMvc.perform(post("/api/v1/auth/login")
+        mockMvc.perform(post("/api/v1/public/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\":\"\"}"))
                 .andExpect(status().isBadRequest())
@@ -82,7 +82,7 @@ class AuthControllerTest {
         when(loginUseCase.login("pedro@email.com", "senha-segura-123"))
                 .thenThrow(new RuntimeException("detalhe interno"));
 
-        mockMvc.perform(post("/api/v1/auth/login")
+        mockMvc.perform(post("/api/v1/public/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\":\"pedro@email.com\",\"password\":\"senha-segura-123\"}"))
                 .andExpect(status().isInternalServerError())
@@ -95,7 +95,7 @@ class AuthControllerTest {
     void refreshShouldReturn200WithOnlyANewAccessToken() throws Exception {
         when(refreshTokenUseCase.refresh("refresh-456")).thenReturn("novo-access-789");
 
-        mockMvc.perform(post("/api/v1/auth/refresh")
+        mockMvc.perform(post("/api/v1/public/auth/refresh")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"refreshToken\":\"refresh-456\"}"))
                 .andExpect(status().isOk())
@@ -107,7 +107,7 @@ class AuthControllerTest {
     void refreshShouldReturn401WhenTokenIsInvalid() throws Exception {
         when(refreshTokenUseCase.refresh("ruim")).thenThrow(new InvalidTokenException());
 
-        mockMvc.perform(post("/api/v1/auth/refresh")
+        mockMvc.perform(post("/api/v1/public/auth/refresh")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"refreshToken\":\"ruim\"}"))
                 .andExpect(status().isUnauthorized())
@@ -116,7 +116,7 @@ class AuthControllerTest {
 
     @Test
     void refreshShouldReturn400WhenTokenIsMissing() throws Exception {
-        mockMvc.perform(post("/api/v1/auth/refresh")
+        mockMvc.perform(post("/api/v1/public/auth/refresh")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{}"))
                 .andExpect(status().isBadRequest())

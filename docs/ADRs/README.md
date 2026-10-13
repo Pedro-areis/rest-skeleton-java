@@ -10,3 +10,4 @@ Decisões menores ficam no `docs/TASKS.md` ou no código.
 | [003](003-hash-de-senha-bcrypt.md) | Hash de senha com BCrypt, atrás de uma porta | Decidido e implementado |
 | [004](004-transacoes.md) | Transações | Adiado |
 | [005](005-tratamento-de-erros-compartilhado.md) | Tratamento de erros: formato compartilhado e um advice por funcionalidade | Decidido |
+| [006](006-spring-security.md) | Spring Security: filtro de token, rotas públicas por prefixo e erros 401/403 | Decidido |
