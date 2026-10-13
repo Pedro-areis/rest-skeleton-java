@@ -6,6 +6,8 @@ import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -44,12 +46,15 @@ public class GlobalExceptionHandler {
     /**
      * Rede de segurança. Nunca devolve detalhes internos ao cliente.
      * <p>
-     * Atenção na Task 7 (Spring Security): se este handler engolir
-     * AccessDeniedException / AuthenticationException, as respostas 401/403 viram 500.
-     * Adicionar handlers específicos (ou relançar) antes de ligar a segurança.
+     * AccessDeniedException e AuthenticationException são relançadas para o Spring Security,
+     * que responde 403/401 pelos seus handlers (ver ADR 006); senão virariam 500.
      */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleUnexpected(Exception ex) {
+    public ResponseEntity<ErrorResponse> handleUnexpected(Exception ex) throws Exception {
+        if (ex instanceof AccessDeniedException || ex instanceof AuthenticationException) {
+            throw ex;
+        }
+
         // Exceções do próprio Spring MVC (405, 415, 404 de rota etc.) já trazem o status certo.
         if (ex instanceof org.springframework.web.ErrorResponse springError) {
             return ErrorResponse.entity(springError.getStatusCode(), "Não foi possível processar a requisição");
