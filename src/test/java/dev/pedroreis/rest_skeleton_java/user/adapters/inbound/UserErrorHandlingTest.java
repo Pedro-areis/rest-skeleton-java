@@ -1,6 +1,10 @@
 package dev.pedroreis.rest_skeleton_java.user.adapters.inbound;
 
+import dev.pedroreis.rest_skeleton_java.auth.adapters.inbound.AuthExceptionHandler;
+import dev.pedroreis.rest_skeleton_java.auth.ports.outbound.TokenPort;
+import dev.pedroreis.rest_skeleton_java.config.SecurityConfig;
 import dev.pedroreis.rest_skeleton_java.shared.web.GlobalExceptionHandler;
+import dev.pedroreis.rest_skeleton_java.user.domain.User;
 import dev.pedroreis.rest_skeleton_java.user.domain.exception.EmailAlreadyExistsException;
 import dev.pedroreis.rest_skeleton_java.user.domain.exception.InvalidBirthDateException;
 import dev.pedroreis.rest_skeleton_java.user.domain.exception.InvalidEmailException;
@@ -12,17 +16,23 @@ import dev.pedroreis.rest_skeleton_java.user.ports.inbound.FindUserUseCase;
 import dev.pedroreis.rest_skeleton_java.user.ports.inbound.UpdateUserUseCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.time.LocalDate;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -32,29 +42,33 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Teste web "standalone": sobe só o controller + os advices (de user e o genérico, de shared/web), sem contexto Spring,
- * sem Spring Security e sem banco.
+ * Teste de fatia web com a cadeia de segurança real (ver ADR 006): controller, advices e filtro de token,
+ * com o {@link TokenPort} e os casos de uso simulados. Sem banco.
  */
+@WebMvcTest(controllers = UserController.class)
+@Import({SecurityConfig.class, GlobalExceptionHandler.class, AuthExceptionHandler.class, UserExceptionHandler.class})
 class UserErrorHandlingTest {
 
-    private CreateUserUseCase createUserUseCase;
-    private UpdateUserUseCase updateUserUseCase;
-    private DeleteUserUseCase deleteUserUseCase;
+    private static final UUID USER_ID = UUID.fromString("11111111-1111-1111-1111-111111111111");
+    private static final String BEARER = "Bearer token-valido";
+
+    @Autowired
     private MockMvc mockMvc;
+
+    @MockitoBean
+    private TokenPort tokenPort;
+    @MockitoBean
+    private CreateUserUseCase createUserUseCase;
+    @MockitoBean
+    private FindUserUseCase findUserUseCase;
+    @MockitoBean
+    private UpdateUserUseCase updateUserUseCase;
+    @MockitoBean
+    private DeleteUserUseCase deleteUserUseCase;
 
     @BeforeEach
     void setUp() {
-        createUserUseCase = mock(CreateUserUseCase.class);
-        updateUserUseCase = mock(UpdateUserUseCase.class);
-        deleteUserUseCase = mock(DeleteUserUseCase.class);
-        FindUserUseCase findUserUseCase = mock(FindUserUseCase.class);
-
-        UserController controller = new UserController(
-                createUserUseCase, findUserUseCase, updateUserUseCase, deleteUserUseCase);
-
-        mockMvc = MockMvcBuilders.standaloneSetup(controller)
-                .setControllerAdvice(new UserExceptionHandler(), new GlobalExceptionHandler())
-                .build();
+        when(tokenPort.parseAccessToken("token-valido")).thenReturn(USER_ID);
     }
 
     private static final String VALID_BODY =
@@ -134,14 +148,15 @@ class UserErrorHandlingTest {
     }
 
     @Test
-    void shouldReturn404WhenUpdatingUnknownUser() throws Exception {
+    void shouldReturn401WhenUpdatingUserThatNoLongerExists() throws Exception {
         when(updateUserUseCase.update(any(), any(), any(), any(), any())).thenThrow(new UserNotFoundException());
 
-        mockMvc.perform(patch("/api/v1/users/{id}", UUID.randomUUID())
+        mockMvc.perform(patch("/api/v1/users/me")
+                        .header("Authorization", BEARER)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\":\"Novo Nome\"}"))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.message").value("Usuário não encontrado"));
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message").value("Autenticação necessária ou token inválido"));
     }
 
     @Test
@@ -157,7 +172,8 @@ class UserErrorHandlingTest {
 
     @Test
     void shouldReturn400WithFieldErrorWhenUpdatingWithInvalidEmailFormat() throws Exception {
-        mockMvc.perform(patch("/api/v1/users/{id}", UUID.randomUUID())
+        mockMvc.perform(patch("/api/v1/users/me")
+                        .header("Authorization", BEARER)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\":\"nao-e-email\"}"))
                 .andExpect(status().isBadRequest())
@@ -169,7 +185,8 @@ class UserErrorHandlingTest {
     void shouldReturn409WhenUpdatingToEmailOfAnotherUser() throws Exception {
         when(updateUserUseCase.update(any(), any(), any(), any(), any())).thenThrow(new EmailAlreadyExistsException());
 
-        mockMvc.perform(patch("/api/v1/users/{id}", UUID.randomUUID())
+        mockMvc.perform(patch("/api/v1/users/me")
+                        .header("Authorization", BEARER)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\":\"outro@email.com\"}"))
                 .andExpect(status().isConflict())
@@ -177,12 +194,64 @@ class UserErrorHandlingTest {
     }
 
     @Test
-    void shouldReturn404WhenDeletingUnknownUser() throws Exception {
+    void shouldReturn401WhenDeletingUserThatNoLongerExists() throws Exception {
         doThrow(new UserNotFoundException()).when(deleteUserUseCase).deleteById(any());
 
-        mockMvc.perform(delete("/api/v1/users/{id}", UUID.randomUUID()))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.message").value("Usuário não encontrado"));
+        mockMvc.perform(delete("/api/v1/users/me").header("Authorization", BEARER))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message").value("Autenticação necessária ou token inválido"));
+    }
+
+    @Test
+    void shouldReturnOwnDataOnGetMe() throws Exception {
+        User user = new User("Pedro", "pedro@email.com", "hash", LocalDate.of(2000, 1, 15));
+        when(findUserUseCase.findById(USER_ID)).thenReturn(Optional.of(user));
+
+        mockMvc.perform(get("/api/v1/users/me").header("Authorization", BEARER))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email").value("pedro@email.com"))
+                .andExpect(jsonPath("$.password").doesNotExist())
+                .andExpect(jsonPath("$.passwordHash").doesNotExist());
+    }
+
+    @Test
+    void shouldReturn401WhenGettingUserThatNoLongerExists() throws Exception {
+        when(findUserUseCase.findById(USER_ID)).thenReturn(Optional.empty());
+
+        mockMvc.perform(get("/api/v1/users/me").header("Authorization", BEARER))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message").value("Autenticação necessária ou token inválido"));
+    }
+
+    @Test
+    void shouldReturn401OnMeRoutesWithoutToken() throws Exception {
+        mockMvc.perform(get("/api/v1/users/me")).andExpect(status().isUnauthorized());
+        mockMvc.perform(patch("/api/v1/users/me").contentType(MediaType.APPLICATION_JSON).content("{}"))
+                .andExpect(status().isUnauthorized());
+        mockMvc.perform(delete("/api/v1/users/me")).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void shouldUseIdFromTokenWhenUpdatingAndDeleting() throws Exception {
+        User user = new User("Novo Nome", "pedro@email.com", "hash", LocalDate.of(2000, 1, 15));
+        when(updateUserUseCase.update(eq(USER_ID), any(), any(), any(), any())).thenReturn(user);
+
+        mockMvc.perform(patch("/api/v1/users/me")
+                        .header("Authorization", BEARER)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"Novo Nome\"}"))
+                .andExpect(status().isOk());
+        mockMvc.perform(delete("/api/v1/users/me").header("Authorization", BEARER))
+                .andExpect(status().isNoContent());
+
+        verify(deleteUserUseCase).deleteById(USER_ID);
+    }
+
+    @Test
+    void shouldNotExposeRoutesWithUserIdInPath() throws Exception {
+        mockMvc.perform(delete("/api/v1/users/{id}", UUID.randomUUID()).header("Authorization", BEARER))
+                .andExpect(status().is4xxClientError());
+        verify(deleteUserUseCase, org.mockito.Mockito.never()).deleteById(any());
     }
 
     @Test
