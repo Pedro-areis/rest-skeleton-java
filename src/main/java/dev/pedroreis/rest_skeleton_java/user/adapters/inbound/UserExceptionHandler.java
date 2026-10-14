@@ -26,9 +26,13 @@ public class UserExceptionHandler {
         return ErrorResponse.entity(HttpStatus.CONFLICT, ex.getMessage());
     }
 
+    /**
+     * O id vem sempre do token (rotas {@code /me}), então "não encontrado" significa que o token
+     * aponta para um usuário que não existe mais: sessão inválida, não recurso ausente (ver ADR 006).
+     */
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleUserNotFound(UserNotFoundException ex) {
-        return ErrorResponse.entity(HttpStatus.NOT_FOUND, ex.getMessage());
+        return ErrorResponse.entity(HttpStatus.UNAUTHORIZED, "Autenticação necessária ou token inválido");
     }
 
     @ExceptionHandler(InvalidEmailException.class)
