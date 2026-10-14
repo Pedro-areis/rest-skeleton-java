@@ -64,9 +64,11 @@ Marque `[x]` ao concluir. Uma tarefa por vez, com testes.
   - Depende de: 6
 
 - [ ] **8. Endpoints `/me`**
-  - `GET /me`, `PATCH /me`, `DELETE /me` com `@AuthenticationPrincipal`
+  - `GET`, `PATCH` e `DELETE /api/v1/users/me` com `@AuthenticationPrincipal UUID`
   - Remover as rotas com `{userId}`: com a segurança ligada, qualquer usuário autenticado editaria ou excluiria qualquer id
-  - Depende de: 7
+  - **Decisões tomadas** (ADR 006): token válido de usuário excluído devolve 401 (`UserNotFoundException` vira 401 no `UserExceptionHandler`); o `GET` faz o `orElseThrow` no controller e o `FindUserUseCase` mantém o `Optional`
+  - Testes: `@WebMvcTest` com a cadeia de segurança real, `Bearer` e `TokenPort` simulado
+  - Requisitos: RF03, RF04, RF05 | Depende de: 7
 
 ## Fase 3 — Fechamento
 
