@@ -63,7 +63,7 @@ Marque `[x]` ao concluir. Uma tarefa por vez, com testes.
   - O `catch-all` do `GlobalExceptionHandler` não pode engolir `AccessDeniedException` e `AuthenticationException`, senão 401/403 viram 500
   - Depende de: 6
 
-- [ ] **8. Endpoints `/me`**
+- [x] **8. Endpoints `/me`**
   - `GET`, `PATCH` e `DELETE /api/v1/users/me` com `@AuthenticationPrincipal UUID`
   - Remover as rotas com `{userId}`: com a segurança ligada, qualquer usuário autenticado editaria ou excluiria qualquer id
   - **Decisões tomadas** (ADR 006): token válido de usuário excluído devolve 401 (`UserNotFoundException` vira 401 no `UserExceptionHandler`); o `GET` faz o `orElseThrow` no controller e o `FindUserUseCase` mantém o `Optional`
