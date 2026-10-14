@@ -72,9 +72,10 @@ Marque `[x]` ao concluir. Uma tarefa por vez, com testes.
 
 ## Fase 3 — Fechamento
 
-- [ ] **9. Testes de integração dos endpoints**
+- [x] **9. Testes de integração dos endpoints**
   - Cadastro, login, renovação, `/me`, erros, com PostgreSQL real
   - Conferir que o `save` mantém o id gerado pelo domínio (ver "Dúvidas técnicas em aberto")
+  - Decisões em ADR 007 (Testcontainers, MockMvc, `TRUNCATE` por teste, Surefire único, `application.properties` em UTF-8)
   - Requisitos: RNF03 | Depende de: 8
 
 - [ ] **10. Revisão final da documentação**
@@ -93,4 +94,4 @@ Marque `[x]` ao concluir. Uma tarefa por vez, com testes.
 - Hasher "delegante", se um dia migrar de BCrypt para Argon2 mantendo usuários antigos
 
 ## Dúvidas técnicas em aberto
-- Com o `id` gerado pelo domínio, o `save` faz `SELECT` e depois `INSERT` (não só o `INSERT`). Aceito por ora; conferir na Task 9 que o id é mantido.
+- Com o `id` gerado pelo domínio, o `save` faz `SELECT` e depois `INSERT` (não só o `INSERT`). Aceito por ora. A Task 9 confirmou que o id é mantido (`PersistenceIntegrationTest`).
