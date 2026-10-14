@@ -11,3 +11,4 @@ Decisões menores ficam no `docs/TASKS.md` ou no código.
 | [004](004-transacoes.md) | Transações | Adiado |
 | [005](005-tratamento-de-erros-compartilhado.md) | Tratamento de erros: formato compartilhado e um advice por funcionalidade | Decidido |
 | [006](006-spring-security.md) | Spring Security: filtro de token, rotas públicas por prefixo e erros 401/403 | Decidido |
+| [007](007-testes-de-integracao.md) | Testes de integração: PostgreSQL em container, MockMvc e limpeza por teste | Decidido e implementado |

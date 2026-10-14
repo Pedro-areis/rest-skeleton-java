@@ -10,9 +10,8 @@ Java 21, Spring Boot 4.0.x, PostgreSQL, Flyway, JUnit. Projeto de **estudo**: o 
 - `docs/ADRs/`: decisões de arquitetura, com contexto e trade-offs. Se for contrariar um ADR, avise antes.
 
 ## Comandos
-- Testes: `./mvnw test -Dmaven.resources.skip=true`
-- **Problema conhecido:** `./mvnw test` sem essa flag falha na cópia do `application.properties` (ISO-8859-1 lido como UTF-8). O contorno só serve para os testes que não precisam do arquivo. O build (`./mvnw clean package`) tem o mesmo problema. Correção definitiva pendente.
-- Só o `contextLoads` precisa do PostgreSQL no ar (variáveis `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`; veja `application.properties`). Os demais testes rodam sem banco.
+- Testes: `./mvnw test` (precisa do **Docker Desktop aberto**: os testes de integração sobem um PostgreSQL em container via Testcontainers, ver ADR 007). Não usa o seu PostgreSQL local.
+- Testes de integração (`*IntegrationTest`, base em `support/AbstractIntegrationTest`) rodam no mesmo comando. A primeira execução baixa a imagem do PostgreSQL e demora mais.
 
 ## Arquitetura (hexagonal por funcionalidade, ver ADR 001)
 Pacote base: `dev.pedroreis.rest_skeleton_java`. Cada funcionalidade (hoje `user` e `auth`) tem `domain`, `ports` (`inbound`/`outbound`) e `adapters` (`inbound`/`outbound`).
@@ -42,6 +41,6 @@ Pacote base: `dev.pedroreis.rest_skeleton_java`. Cada funcionalidade (hoje `user
 - Se encontrar divergência entre documentação e código, avise em vez de escolher um lado em silêncio.
 
 ## Cuidados
-- `application.properties` está em ISO-8859-1 com quebras CRLF, não em UTF-8. Edite só as linhas necessárias; não reescreva o arquivo inteiro, ou os acentos dos comentários se corrompem.
+- `application.properties` está em UTF-8 (convertido na Task 9; antes era ISO-8859-1, o que quebrava a cópia de recursos do Maven). Mantenha UTF-8 ao editar.
 - O projeto está dentro do OneDrive. Se o Git ou o Maven reclamarem de arquivo travado, suspeite da sincronização.
 - `Dockerfile`, `docker-compose.yml` e `.github/workflows/deploy.yml` estão vazios de propósito (adiados).
