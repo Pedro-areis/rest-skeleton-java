@@ -9,6 +9,6 @@ Decisões menores ficam no `docs/TASKS.md` ou no código.
 | [002](002-jwt-hs256-access-token-1h.md) | JWT HS256, access token de 1 hora e refresh token de 7 dias | Decidido e implementado |
 | [003](003-hash-de-senha-bcrypt.md) | Hash de senha com BCrypt, atrás de uma porta | Decidido e implementado |
 | [004](004-transacoes.md) | Transações | Adiado |
-| [005](005-tratamento-de-erros-compartilhado.md) | Tratamento de erros: formato compartilhado e um advice por funcionalidade | Decidido |
+| [005](005-tratamento-de-erros-compartilhado.md) | Tratamento de erros: formato compartilhado e um advice por funcionalidade | Decidido e implementado |
 | [006](006-spring-security.md) | Spring Security: filtro de token, rotas públicas por prefixo e erros 401/403 | Decidido e implementado |
 | [007](007-testes-de-integracao.md) | Testes de integração: PostgreSQL em container, MockMvc e limpeza por teste | Decidido e implementado |

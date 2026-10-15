@@ -1,7 +1,7 @@
 # 005 — Tratamento de erros: formato compartilhado e um advice por funcionalidade
 
 **Data:** 12/10/2026
-**Status:** Decidido
+**Status:** Decidido e implementado
 
 ## Contexto
 O `GlobalExceptionHandler` e o `ErrorResponse` moravam em `user/adapters/inbound`. A funcionalidade `auth` (Task 6) precisa do mesmo formato de erro e de traduzir exceções próprias (credenciais inválidas e token inválido, ambas 401). A dependência entre funcionalidades tem uma só direção, `auth → user` (ADR 001), então o handler de `user` não pode conhecer exceções de `auth`. Também não é possível pôr o status HTTP dentro de `DomainException`, porque o domínio é Java puro.
