@@ -1,7 +1,7 @@
 # Tarefas
 
 Plano de trabalho do esqueleto. As decisões por trás de cada item estão em `docs/ADRs/`.
-Marque `[x]` ao concluir. Uma tarefa por vez, com testes.
+Marque `[X]` ao concluir. Uma tarefa por vez, com testes.
 
 **Como retomar uma conversa com a IA:** cole `PROJECT.md`, `REQUIREMENTS.md`, este arquivo e os ADRs relevantes, e diga qual tarefa vai fazer.
 
@@ -16,28 +16,28 @@ Marque `[x]` ao concluir. Uma tarefa por vez, com testes.
   - `PostgresUserAdapter` converte `DataIntegrityViolationException` em exceção de domínio
   - Mensagens em português
 
-- [x] **2. Data de nascimento**
+- [X] **2. Data de nascimento**
   - Migração `V2` (coluna `NOT NULL`), `User`, `UserEntity`, DTOs
   - Regra: não pode ser futura
 
-- [x] **3. Corrigir o `update`**
+- [X] **3. Corrigir o `update`**
   - Buscar o usuário por `id` (hoje busca por e-mail)
   - Novo e-mail não pode pertencer a outro usuário
   - Validações no `UpdateUserRequest`
   - Remover a variável não usada em `deleteById`
   - Requisitos: RF05 | Depende de: 1, 2
 
-- [x] **4. Testes unitários do domínio**
+- [X] **4. Testes unitários do domínio**
   - `User` e `UserService`, com repositório falso (sem Spring e sem banco)
   - Requisitos: RNF03 | Depende de: 3
 
 ## Fase 2 — Autenticação
 
-- [x] **5. `PasswordHasherPort` e adaptador BCrypt**
+- [X] **5. `PasswordHasherPort` e adaptador BCrypt**
   - Cadastro e atualização gravam o hash
   - ADR: 003 | Depende de: 4
 
-- [x] **5.1 Regra de senha mínima**
+- [X] **5.1 Regra de senha mínima**
   - Regra (RF01): mínimo de 8 caracteres, sem exigência de maiúscula, número ou símbolo
   - Vale no cadastro e na troca de senha (`PATCH`)
   - O máximo de 72 bytes já existe, no adaptador BCrypt (ADR 003)
@@ -49,21 +49,21 @@ Marque `[x]` ao concluir. Uma tarefa por vez, com testes.
     - Validação só no domínio, sem `@Size` no DTO (um `@Size(min = 8)` rejeitaria `""` e quebraria o "vazio não altera" do `PATCH`)
   - Requisitos: RF01, RF04, RNF03 | Depende de: 5
 
-- [x] **6. `TokenPort`, adaptador JWT, login e renovação**
+- [X] **6. `TokenPort`, adaptador JWT, login e renovação**
   - Decisões em ADR 002 (JWT: biblioteca, `sub`, tipo do token, renovação, erro de login, segredo, `Clock`) e ADR 005 (tratamento de erros compartilhado)
   - Casos de uso: login (e-mail + senha → access e refresh token) e renovação (refresh token → novo access token)
   - Pré-requisito: mover `ErrorResponse` e o handler genérico para `shared/web`, com um advice por funcionalidade
   - Corrigir `api.security.token.expiration` (hoje `2`) para duas durações: access 1 hora e refresh 7 dias
   - ADR: 002, 005 | Requisitos: RF02 | Depende de: 5
 
-- [x] **7. Spring Security**
+- [X] **7. Spring Security**
   - Decisões em ADR 006 (filtro, principal `UUID`, rotas públicas sob `/api/v1/public/**`, 401/403, CSRF e CORS, testes)
   - `SecurityFilterChain`, filtro que lê o token
   - Rotas públicas: cadastro, login, renovação
   - O `catch-all` do `GlobalExceptionHandler` não pode engolir `AccessDeniedException` e `AuthenticationException`, senão 401/403 viram 500
   - Depende de: 6
 
-- [x] **8. Endpoints `/me`**
+- [X] **8. Endpoints `/me`**
   - `GET`, `PATCH` e `DELETE /api/v1/users/me` com `@AuthenticationPrincipal UUID`
   - Remover as rotas com `{userId}`: com a segurança ligada, qualquer usuário autenticado editaria ou excluiria qualquer id
   - **Decisões tomadas** (ADR 006): token válido de usuário excluído devolve 401 (`UserNotFoundException` vira 401 no `UserExceptionHandler`); o `GET` faz o `orElseThrow` no controller e o `FindUserUseCase` mantém o `Optional`
@@ -72,13 +72,13 @@ Marque `[x]` ao concluir. Uma tarefa por vez, com testes.
 
 ## Fase 3 — Fechamento
 
-- [x] **9. Testes de integração dos endpoints**
+- [X] **9. Testes de integração dos endpoints**
   - Cadastro, login, renovação, `/me`, erros, com PostgreSQL real
   - Conferir que o `save` mantém o id gerado pelo domínio (ver "Dúvidas técnicas em aberto")
   - Decisões em ADR 007 (Testcontainers, MockMvc, `TRUNCATE` por teste, Surefire único, `application.properties` em UTF-8)
   - Requisitos: RNF03 | Depende de: 8
 
-- [ ] **10. Revisão final da documentação**
+- [X] **10. Revisão final da documentação**
   - Conferir `REQUIREMENTS.md`, `PROJECT.md`, `docs/ADRs/` e `README.md` contra o que foi de fato construído
   - Depende de: 9
 

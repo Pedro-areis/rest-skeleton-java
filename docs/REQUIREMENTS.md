@@ -72,3 +72,17 @@ A aplicação deve disponibilizar uma API REST.
 ## RNF03 — Testes
 
 As regras de negócio devem possuir testes automatizados.
+
+## RNF04 — Armazenamento de senhas
+
+As senhas devem ser gravadas apenas como hash, nunca em texto puro (ver ADR 003).
+
+## RNF05 — Proteção das rotas
+
+As rotas devem exigir um access token válido, exceto as públicas sob `/api/v1/public/**`
+(cadastro, login e renovação). A autenticação não guarda estado no servidor (ver ADR 002 e ADR 006).
+
+## RNF06 — Testes de integração
+
+Os fluxos principais (cadastro, login, renovação, `/me` e erros) devem possuir testes de
+integração com PostgreSQL real (ver ADR 007).

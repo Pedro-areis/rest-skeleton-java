@@ -18,7 +18,9 @@ Desenvolvedores demoram para iniciar o projeto de fato (a solução) criando o C
 - Criar um usuário
 - Atualizar um usuário
 - Excluir um usuário
+- Consultar os próprios dados
 - Autenticar usuários através de Tokens
+- Renovar o token de acesso
 
 ## Fora do escopo
 
@@ -36,7 +38,7 @@ Desenvolvedores demoram para iniciar o projeto de fato (a solução) criando o C
 - Java
 - Spring Boot
 - PostgreSQL
-- Docker
+- Docker (usado nos testes, via Testcontainers; a imagem da aplicação foi adiada)
 - JUnit
 
 ## Restrições
