@@ -31,7 +31,7 @@ As rotas precisam exigir um access token (ADR 002), exceto cadastro, login e ren
 - O `ErrorResponse` é serializado à mão nos dois handlers, fora do MVC.
 - CSRF desligado só é seguro porque não há cookie de sessão. Quem copiar esta configuração para um projeto com cookie precisa reavaliar.
 - CORS mal configurado (por exemplo, `*`) abre a API a qualquer origem.
-- O teste com `TokenPort` simulado não prova a integração com o `JwtTokenAdapter` real (isso fica para a Task 9).
+- O teste com `TokenPort` simulado não prova a integração com o `JwtTokenAdapter` real (isso ficou para a Task 9, fechado pelo ADR 007).
 
 ## Alternativas descartadas
 - **Filtro:** principal como tipo próprio (o `UserController` importaria `auth`, ou o tipo iria para `shared`) e filtro em `config/` (`config/` deixaria de ser só fiação de beans).
