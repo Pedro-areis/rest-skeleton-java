@@ -1,8 +1,10 @@
 # REST Skeleton Java
 
-Esqueleto de API REST com CRUD de usuários e autenticação por token (JWT), para reaproveitar no início de novos projetos.
+**API REST com autenticação JWT, arquitetura hexagonal e testes de integração com PostgreSQL real.**
 
-Projeto de estudo: o foco é arquitetura, decisões documentadas e testes, não só o código que funciona.
+Esqueleto com CRUD de usuários e autenticação por token, para reaproveitar no início de novos projetos.
+
+Projeto de estudo com decisões de arquitetura documentadas em ADRs: o foco é arquitetura, testes e o porquê de cada escolha, não só o código que funciona.
 
 **Stack:** Java 21, Spring Boot 4, PostgreSQL, Flyway, JUnit e Testcontainers. Arquitetura hexagonal por funcionalidade.
 
