@@ -1,4 +1,4 @@
-# rest-skeleton-java
+# REST Skeleton Java
 
 Esqueleto de API REST com CRUD de usuários e autenticação por token (JWT), para reaproveitar no início de novos projetos.
 
