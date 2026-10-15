@@ -1,7 +1,7 @@
 # 002 — JWT com assinatura HS256 e access token de 1 hora
 
 **Data:** 30/09/2026 (atualizado na Task 6)
-**Status:** Decidido
+**Status:** Decidido e implementado
 
 ## Contexto
 A autenticação é baseada em token. JWT é o padrão do mercado. É preciso escolher o algoritmo de assinatura, a validade e como o token é montado, emitido e verificado.

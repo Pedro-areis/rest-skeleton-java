@@ -1,7 +1,7 @@
 # 006 — Spring Security: filtro de token, rotas públicas por prefixo e erros 401/403
 
 **Data:** 13/10/2026
-**Status:** Decidido
+**Status:** Decidido e implementado
 
 ## Contexto
 As rotas precisam exigir um access token (ADR 002), exceto cadastro, login e renovação. O Spring Security já está no classpath e, sem configuração, protege tudo com Basic auth. É preciso decidir onde mora o filtro que lê o token, como as rotas públicas são declaradas, como 401 e 403 viram o `ErrorResponse` do ADR 005, o que fazer com sessão, CSRF e CORS, e como testar.
